@@ -6,3 +6,7 @@ This repository contains the source code for our OSDI'20 paper
 - PipeSwitch
 - Ready model
 - Kill and restart
+- PyTorch plugins
+- Tasks
+- Util
+- Clients
