@@ -18,16 +18,16 @@
 #include <unordered_set>
 #include <vector>
 
-#include <iostream>
-#include <unistd.h> 
-#include <stdio.h> 
-#include <sys/socket.h> 
-#include <stdlib.h> 
-#include <netinet/in.h> 
-#include <string.h>
-#include <arpa/inet.h> 
-#define PORT 9001
-#define SIZE_SHARED_CACHE (12 * 1024UL * 1024UL * 1024UL)
+#include <iostream> // PipeSwitch
+#include <unistd.h>  // PipeSwitch
+#include <stdio.h>  // PipeSwitch
+#include <sys/socket.h>  // PipeSwitch
+#include <stdlib.h>  // PipeSwitch
+#include <netinet/in.h>  // PipeSwitch
+#include <string.h> // PipeSwitch
+#include <arpa/inet.h>  // PipeSwitch
+#define PORT 9001 // PipeSwitch
+#define SIZE_SHARED_CACHE (12 * 1024UL * 1024UL * 1024UL) // PipeSwitch
 
 namespace c10 {
 
@@ -189,8 +189,8 @@ struct THCCachingAllocator
   // outstanding cuda events
   std::deque<std::pair<cudaEvent_t, Block*>> cuda_events;
 
-  // Pre-allocated shared GPU memory
-  void* LEUCOCYTE_shared_ptr = NULL;
+  // PipeSwitch: Pre-allocated shared GPU memory
+  void* PIPESWITCH_shared_ptr = NULL;
   // size_t allocated_size = 0;
 
   THCCachingAllocator() :
@@ -350,23 +350,23 @@ struct THCCachingAllocator
     free_blocks(small_blocks, small_blocks.begin(), small_blocks.end());
   }
 
-  /** LEUCOCYTE allocate shared GPU memory **/
+  /* PipeSwitch: allocate shared GPU memory */
   void allocateSharedCache() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
-    cudaError_t err = cudaMalloc(&LEUCOCYTE_shared_ptr, SIZE_SHARED_CACHE);
+    cudaError_t err = cudaMalloc(&PIPESWITCH_shared_ptr, SIZE_SHARED_CACHE);
     if (err != cudaSuccess) {
       perror("allocate_shared_cache"); 
       exit(EXIT_FAILURE); 
     }
   }
 
-  /** LEUCOCYTE send shared GPU memory **/
+  /* PipeSwitch: send shared GPU memory */
   void sendSharedCache() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     cudaIpcMemHandle_t shared_cache_handle;
 
     // Pack CUDA pointer
-    cudaError_t err = cudaIpcGetMemHandle(&shared_cache_handle, LEUCOCYTE_shared_ptr);
+    cudaError_t err = cudaIpcGetMemHandle(&shared_cache_handle, PIPESWITCH_shared_ptr);
     if (err != cudaSuccess) {
       perror("pack_shared_cache"); 
       exit(EXIT_FAILURE); 
@@ -408,7 +408,7 @@ struct THCCachingAllocator
     close(server_fd);
   }
 
-  /** LEUCOCYTE recv shared GPU memory **/
+  /* PipeSwitch: recv shared GPU memory */
   void recvSharedCache() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     cudaIpcMemHandle_t shared_cache_handle;
@@ -435,7 +435,7 @@ struct THCCachingAllocator
     read(conn_fd, (void*)(&shared_cache_handle), sizeof(cudaIpcMemHandle_t)); 
     
     // Extract the pointer
-    cudaError_t err = cudaIpcOpenMemHandle(&LEUCOCYTE_shared_ptr, shared_cache_handle, cudaIpcMemLazyEnablePeerAccess);
+    cudaError_t err = cudaIpcOpenMemHandle(&PIPESWITCH_shared_ptr, shared_cache_handle, cudaIpcMemLazyEnablePeerAccess);
     if (err != cudaSuccess) {
       perror("extract_shared_cache"); 
       exit(EXIT_FAILURE); 
@@ -444,7 +444,7 @@ struct THCCachingAllocator
     close(conn_fd);
   }
 
-  /** LEUCOCYTE insert shared GPU memory to large block pool **/
+  /* PipeSwitch: insert shared GPU memory to large block pool */
     void insertSharedCache(size_t size, size_t offset) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     int device;
@@ -454,7 +454,7 @@ struct THCCachingAllocator
       cuda::getCurrentCUDAStream(device), 
       size, 
       &large_blocks, 
-      static_cast<char*>(LEUCOCYTE_shared_ptr) + offset);
+      static_cast<char*>(PIPESWITCH_shared_ptr) + offset);
     // allocated_size += size;
     large_blocks.insert(block);
 
@@ -462,6 +462,7 @@ struct THCCachingAllocator
     return;
   }
 
+  /* PipeSwitch: clear shared GPU memory */
   void clearSharedCache() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
 
@@ -802,22 +803,27 @@ void emptyCache(void) {
   caching_allocator.emptyCache();
 }
 
+// PipeSwitch
 void allocateSharedCache(void) {
   caching_allocator.allocateSharedCache();
 }
 
+// PipeSwitch
 void sendSharedCache(void) {
   caching_allocator.sendSharedCache();
 }
 
+// PipeSwitch
 void recvSharedCache(void) {
   caching_allocator.recvSharedCache();
 }
 
+// PipeSwitch
 void insertSharedCache(size_t size, size_t offset) {
     caching_allocator.insertSharedCache(size, offset);
 }
 
+// PipeSwitch
 void clearSharedCache(void) {
   caching_allocator.clearSharedCache();
 }

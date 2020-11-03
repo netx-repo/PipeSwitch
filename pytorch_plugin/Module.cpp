@@ -237,6 +237,7 @@ PyObject * THCPModule_emptyCache(PyObject *_unused, PyObject *noargs)
   Py_RETURN_NONE;
 }
 
+// PipeSwitch
 PyObject * THCPModule_allocateSharedCache(PyObject *_unused, PyObject *noargs)
 {
   HANDLE_TH_ERRORS
@@ -245,6 +246,7 @@ PyObject * THCPModule_allocateSharedCache(PyObject *_unused, PyObject *noargs)
   Py_RETURN_NONE;
 }
 
+// PipeSwitch
 PyObject * THCPModule_sendSharedCache(PyObject *_unused, PyObject *noargs)
 {
   HANDLE_TH_ERRORS
@@ -253,6 +255,7 @@ PyObject * THCPModule_sendSharedCache(PyObject *_unused, PyObject *noargs)
   Py_RETURN_NONE;
 }
 
+// PipeSwitch
 PyObject * THCPModule_recvSharedCache(PyObject *_unused, PyObject *noargs)
 {
   HANDLE_TH_ERRORS
@@ -261,6 +264,7 @@ PyObject * THCPModule_recvSharedCache(PyObject *_unused, PyObject *noargs)
   Py_RETURN_NONE;
 }
 
+// PipeSwitch
 PyObject * THCPModule_insertSharedCacheForParameter(PyObject *_unused, PyObject *noargs)
 {
   HANDLE_TH_ERRORS
@@ -269,6 +273,7 @@ PyObject * THCPModule_insertSharedCacheForParameter(PyObject *_unused, PyObject 
   Py_RETURN_NONE;
 }
 
+// PipeSwitch
 PyObject * THCPModule_insertSharedCacheForComputation(PyObject *_unused, PyObject *noargs)
 {
   HANDLE_TH_ERRORS
@@ -277,6 +282,7 @@ PyObject * THCPModule_insertSharedCacheForComputation(PyObject *_unused, PyObjec
   Py_RETURN_NONE;
 }
 
+// PipeSwitch
 PyObject * THCPModule_clearSharedCache(PyObject *_unused, PyObject *noargs)
 {
   HANDLE_TH_ERRORS
@@ -455,19 +461,19 @@ static struct PyMethodDef _THCPModule_methods[] = {
     (PyCFunction)THCPModule_getCurrentStream_wrap, METH_O, nullptr},
   {"_cuda_getDefaultStream",
     (PyCFunction)THCPModule_getDefaultStream_wrap, METH_O, nullptr},
-  {"_cuda_getCurrentBlasHandle", (PyCFunction)THCPModule_getCurrentBlasHandle_wrap, METH_NOARGS, nullptr},
+  {"_cuda_getCurrentBlasHandle", (PyCFunction)THCPModule_getCurrentBlasHandle_wrap, METH_NOARGS, nullptr}, // PipeSwitch
   {"_cuda_setStream",    (PyCFunction)THCPModule_setStream_wrap,  METH_O, nullptr},
   {"_cuda_isDriverSufficient", (PyCFunction)THCPModule_isDriverSufficient, METH_NOARGS, nullptr},
   {"_cuda_getDriverVersion", (PyCFunction)THCPModule_getDriverVersion, METH_NOARGS, nullptr},
   {"_cuda_getCompiledVersion", (PyCFunction)THCPModule_getCompiledVersion, METH_NOARGS, nullptr},
   {"_cuda_hasPrimaryContext", (PyCFunction) THCPModule_hasPrimaryContext,  METH_O,  nullptr},
-  {"_cuda_emptyCache", (PyCFunction) THCPModule_emptyCache, METH_NOARGS,  nullptr},
-  {"_cuda_allocateSharedCache", (PyCFunction) THCPModule_allocateSharedCache, METH_NOARGS, nullptr},
-  {"_cuda_sendSharedCache", (PyCFunction) THCPModule_sendSharedCache, METH_NOARGS, nullptr},
-  {"_cuda_recvSharedCache", (PyCFunction) THCPModule_recvSharedCache, METH_NOARGS, nullptr},
-  {"_cuda_insertSharedCacheForParameter", (PyCFunction) THCPModule_insertSharedCacheForParameter, METH_NOARGS, nullptr},
-  {"_cuda_insertSharedCacheForComputation", (PyCFunction) THCPModule_insertSharedCacheForComputation, METH_NOARGS, nullptr},
-  {"_cuda_clearSharedCache", (PyCFunction) THCPModule_clearSharedCache, METH_NOARGS, nullptr},
+  {"_cuda_emptyCache", (PyCFunction) THCPModule_emptyCache, METH_NOARGS,  nullptr}, 
+  {"_cuda_allocateSharedCache", (PyCFunction) THCPModule_allocateSharedCache, METH_NOARGS, nullptr}, // PipeSwitch
+  {"_cuda_sendSharedCache", (PyCFunction) THCPModule_sendSharedCache, METH_NOARGS, nullptr}, // PipeSwitch
+  {"_cuda_recvSharedCache", (PyCFunction) THCPModule_recvSharedCache, METH_NOARGS, nullptr}, // PipeSwitch
+  {"_cuda_insertSharedCacheForParameter", (PyCFunction) THCPModule_insertSharedCacheForParameter, METH_NOARGS, nullptr}, // PipeSwitch
+  {"_cuda_insertSharedCacheForComputation", (PyCFunction) THCPModule_insertSharedCacheForComputation, METH_NOARGS, nullptr}, // PipeSwitch
+  {"_cuda_clearSharedCache", (PyCFunction) THCPModule_clearSharedCache, METH_NOARGS, nullptr}, // PipeSwitch
   {"_cuda_memoryAllocated", (PyCFunction) THCPModule_memoryAllocated, METH_O,  nullptr},
   {"_cuda_maxMemoryAllocated", (PyCFunction) THCPModule_maxMemoryAllocated, METH_O,  nullptr},
   {"_cuda_resetMaxMemoryAllocated", (PyCFunction) THCPModule_resetMaxMemoryAllocated, METH_O,  nullptr},
