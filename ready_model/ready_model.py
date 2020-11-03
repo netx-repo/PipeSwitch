@@ -1,0 +1,87 @@
+import sys
+import queue
+import struct
+import threading
+import importlib
+
+import torch
+import torch.multiprocessing as mp
+
+from experiments.helper import get_model
+from core.util import TcpServer, TcpAgent, timestamp
+
+def func_get_request(active_model_name, qout):
+    # Listen connections
+    server = TcpServer('localhost', 12345)
+
+    while True:
+        # Get connection
+        conn, _ = server.accept()
+        agent = TcpAgent(conn)
+
+        model_name_length_b = agent.recv(4)
+        model_name_length = struct.unpack('I', model_name_length_b)[0]
+        if model_name_length == 0:
+            break
+        model_name_b = agent.recv(model_name_length)
+        model_name = model_name_b.decode()
+        if active_model_name not in model_name:
+            raise Exception('Invalid model name')
+        timestamp('tcp', 'get_name')
+
+        data_length_b = agent.recv(4)
+        data_length = struct.unpack('I', data_length_b)[0]
+        if data_length > 0:
+            data_b = agent.recv(data_length)
+        else:
+            data_b = None
+        timestamp('tcp', 'get_data')
+        qout.put((agent, data_b))
+
+def func_schedule(qin, pipe):
+    while True:
+        agent, data_b = qin.get()
+        pipe.send((agent, data_b))
+
+def worker_compute(model_name, pipe):
+    # Load model
+    model, func = get_model(model_name)
+
+    # Model to GPU
+    model = model.eval().cuda()
+
+    while True:
+        agent, data_b = pipe.recv()
+
+        # Compute
+        output = func(model, data_b)
+        timestamp('server', 'complete')
+
+        agent.send(b'FNSH')
+        timestamp('server', 'reply')
+
+        del agent
+
+def main():
+    # Get model name
+    model_name = sys.argv[1]
+
+    # Create threads and worker process
+    q_to_schedule = queue.Queue()
+    p_parent, p_child = mp.Pipe()
+    t_get = threading.Thread(target=func_get_request, args=(model_name, q_to_schedule))
+    t_get.start()
+    t_schedule = threading.Thread(target=func_schedule, args=(q_to_schedule, p_parent))
+    t_schedule.start()
+    p_compute = mp.Process(target=worker_compute, args=(model_name, p_child))
+    p_compute.start()
+
+    # Accept connection
+    t_get.join()
+    t_schedule.join()
+    p_compute.join()
+    
+
+if __name__ == '__main__':
+    mp.set_start_method('spawn')
+    main()
