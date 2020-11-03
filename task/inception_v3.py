@@ -12,7 +12,7 @@ def import_data(batch_size):
     # Download an example image from the pytorch website
     if not os.path.isfile(filename):
         import urllib
-        url = 'https://github.com/pytorch/hub/raw/master/dog.jpg'
+        url = 'https://github.com/pytorch/hub/raw/master/images/dog.jpg'
         try: 
             urllib.URLopener().retrieve(url, filename)
         except: 

@@ -24,6 +24,7 @@ from resnet152 import import_data
 from resnet152_inference import import_model, import_function
 data, images = import_data(8) # Argument is batch size
 model = import_model()
+model = model.cuda()
 func = import_func()
-output = func(model, data) # Output is the sum of the model result, which is used to check correctness.
+output = func(model, data.numpy().tobytes()) # Output is the sum of the model result, which is used to check correctness.
 ```
