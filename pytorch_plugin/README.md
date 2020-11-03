@@ -15,6 +15,8 @@ This folder contains modifications to the PyTorch code.
 3. Compile the modified PyTorch. Then you may install it to Python library folder or set `PYTHONPATH` to make sure that PipeSwitch can find it.
 
 # Implementation
+All the modified functions are labeled with a comment of "PipeSwitch" around them.
+
 The code is implemented for NVIDIA V100 and T4, both of which have 16 GB GPU memory. Thus, some related parameters for memory management are directly written in the code. If you use GPUs with different GPU memory size, you need to change these parameters.
 
 There are some printed message for debug. You can comment them if needed.
