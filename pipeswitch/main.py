@@ -4,10 +4,10 @@ from queue import Queue
 import torch
 import torch.multiprocessing as mp
 
-from core.frontend_tcp import FrontendTcpThd
-from core.frontend_schedule import FrontendScheduleThd
-from core.worker import WorkerProc
-from core.util import timestamp, TcpAgent, TcpServer
+from pipeswitch.frontend_tcp import FrontendTcpThd
+from pipeswitch.frontend_schedule import FrontendScheduleThd
+from pipeswitch.worker import WorkerProc
+from util.util import timestamp, TcpAgent, TcpServer
 
 def main():
     timestamp('frontend', 'start')

@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 import task.resnet152 as resnet152
-import task.task_util as util
+import task.common as util
 
 TASK_NAME = 'resnet152_training'
 

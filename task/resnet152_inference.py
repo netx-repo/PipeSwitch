@@ -6,7 +6,7 @@ import torch
 import numpy
 
 import task.resnet152 as resnet152
-import task.task_util as util
+import task.common as util
 
 TASK_NAME = 'resnet152_inference'
 

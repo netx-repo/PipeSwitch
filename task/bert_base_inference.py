@@ -6,7 +6,7 @@ import torch
 import numpy
 
 import task.bert_base as bert_base
-import task.task_util as util
+import task.common as util
 
 TASK_NAME = 'bert_base_inference'
 

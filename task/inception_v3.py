@@ -2,7 +2,7 @@ import os
 
 import torch
 
-import task.task_util as util
+import task.common as util
 
 MODEL_NAME = 'inception_v3'
 

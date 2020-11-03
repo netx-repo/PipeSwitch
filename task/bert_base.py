@@ -1,6 +1,6 @@
 import torch
 
-import task.task_util as util
+import task.common as util
 
 def import_model():
     model = torch.hub.load('huggingface/pytorch-transformers', 'model',

@@ -3,8 +3,8 @@ import time
 import struct
 import statistics
 
-from experiments.helper import get_data
-from core.util import TcpClient, timestamp
+from task.helper import get_data
+from util.util import TcpClient, timestamp
 
 def main():
     model_name = sys.argv[1]

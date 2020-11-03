@@ -1,7 +1,7 @@
 import threading
 import struct
 
-from core.util import timestamp
+from util.util import timestamp
 
 
 class FrontendTcpThd(threading.Thread):

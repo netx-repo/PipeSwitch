@@ -6,8 +6,7 @@ import importlib
 
 import torch.multiprocessing as mp
 
-from core.util import TcpServer, TcpAgent, timestamp
-from sys import argv
+from util.util import TcpServer, TcpAgent, timestamp
 
 def func_get_request(qout):
     # Listen connections

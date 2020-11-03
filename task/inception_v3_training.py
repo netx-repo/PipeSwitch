@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 
 import task.inception_v3 as inception_v3
-import task.task_util as util
+import task.common as util
 
 TASK_NAME = 'inception_v3_training'
 

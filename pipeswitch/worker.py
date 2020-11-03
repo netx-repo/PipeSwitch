@@ -4,9 +4,9 @@ from multiprocessing import Process
 import torch
 import time
 
-from core.worker_common import ModelSummary
-from core.worker_terminate import WorkerTermThd
-from core.util import timestamp
+from pipeswitch.worker_common import ModelSummary
+from pipeswitch.worker_terminate import WorkerTermThd
+from util.util import timestamp
 
 class WorkerProc(Process):
     def __init__(self, model_list, pipe, param_trans_pipe, term_pipe):

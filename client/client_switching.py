@@ -3,8 +3,8 @@ import time
 import struct
 import statistics
 
-from experiments.helper import get_data
-from core.util import TcpClient, timestamp
+from task.helper import get_data
+from util.util import TcpClient, timestamp
 
 def send_request(client, task_name, data):
     timestamp('client', 'before_request_%s' % task_name)
