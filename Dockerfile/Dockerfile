@@ -1,0 +1,22 @@
+FROM pytorch/pytorch:1.3-cuda10.1-cudnn7-devel
+
+WORKDIR /workspace
+RUN git clone https://github.com/pytorch/pytorch.git
+
+WORKDIR /workspace/pytorch
+RUN git checkout v1.3.0
+RUN git submodule sync
+RUN git submodule update --init --recursive
+RUN conda install -y \
+    numpy \
+    ninja \
+    pyyaml \
+    mkl \
+    mkl-include \
+    setuptools \
+    cmake \
+    cffi \
+    typing
+RUN conda install -c pytorch magma-cuda101
+ENV CMAKE_PREFIX_PATH=/opt/conda/
+RUN python setup.py install
