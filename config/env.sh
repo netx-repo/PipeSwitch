@@ -1,0 +1,1 @@
+DOCKER_IMAGE_BASE_TAG='pipeswitch:base'
