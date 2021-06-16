@@ -28,3 +28,7 @@ echo 'Copy docker image to servers'
 python scripts/copy_image.py $WORK_DIR/config/servers.txt $WORK_DIR/$DOCKER_IMAGE_BASE_FILENAME
 echo 'Complete copying docker image to servers'
 echo
+
+# Clone PipeSwitch repo to the server
+
+# Load the base docker on the server
