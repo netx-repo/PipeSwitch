@@ -15,3 +15,16 @@ echo
 echo 'Create docker image:' $DOCKER_IMAGE_BASE_TAG
 docker build -t $DOCKER_IMAGE_BASE_TAG $WORK_DIR/Dockerfile
 echo 'Complete creating docker image:' $DOCKER_IMAGE_BASE_TAG
+echo
+
+# Export the base docker image as a tar file
+echo 'Export docker image:' $DOCKER_IMAGE_BASE_TAG
+docker save -o $WORK_DIR/$DOCKER_IMAGE_BASE_FILENAME $DOCKER_IMAGE_BASE_TAG
+echo 'Complete exporting docker image:' $DOCKER_IMAGE_BASE_FILENAME
+echo
+
+# Copy the base docker to the server
+echo 'Copy docker image to servers'
+python scripts/copy_image.py $WORK_DIR/config/servers.txt $WORK_DIR/$DOCKER_IMAGE_BASE_FILENAME
+echo 'Complete copying docker image to servers'
+echo
