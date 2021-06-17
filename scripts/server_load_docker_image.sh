@@ -12,8 +12,7 @@ echo 'Import global variables'
 echo
 
 # Import docker image
-echo $WORK_DIR
-# echo 'Import docker image:' $DOCKER_IMAGE_BASE_TAG
-# docker load -i ~/$DOCKER_IMAGE_BASE_FILENAME
-# echo 'Complete importing docker image:' $DOCKER_IMAGE_BASE_FILENAME
-# echo
+echo 'Import docker image:' $DOCKER_IMAGE_BASE_TAG
+docker load -i ~/$DOCKER_IMAGE_BASE_FILENAME
+echo 'Complete importing docker image:' $DOCKER_IMAGE_BASE_FILENAME
+echo
