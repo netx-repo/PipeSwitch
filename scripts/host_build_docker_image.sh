@@ -30,5 +30,8 @@ echo 'Complete copying docker image to servers'
 echo
 
 # Clone PipeSwitch repo to the server
+echo 'Clone Pipewitch code to the server'
+ssh aws-pipeswitch-opesource 'git clone --branch dev-dockerfile-base git@github.com:baizh1994/PipeSwitch.git'
+echo
 
 # Load the base docker on the server
