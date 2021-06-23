@@ -20,3 +20,5 @@ RUN conda install -y \
 RUN conda install -c pytorch magma-cuda101
 ENV CMAKE_PREFIX_PATH=/opt/conda/
 RUN python setup.py develop
+
+WORKDIR /workspace
