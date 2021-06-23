@@ -20,19 +20,19 @@ echo
 
 # Export the base docker image as a tar file
 echo 'Export docker image:' $DOCKER_IMAGE_BASE_TAG
-docker save -o $WORK_DIR/$DOCKER_IMAGE_BASE_FILENAME $DOCKER_IMAGE_BASE_TAG
+docker save -o $WORK_DIR/tmp/$DOCKER_IMAGE_BASE_FILENAME $DOCKER_IMAGE_BASE_TAG
 echo 'Complete exporting docker image:' $DOCKER_IMAGE_BASE_FILENAME
 echo
 
 # Copy the base docker to the server
 echo 'Copy docker image to servers'
-python scripts/copy_image.py $WORK_DIR/config/servers.txt $WORK_DIR/$DOCKER_IMAGE_BASE_FILENAME
+python scripts/host_copy_docker_image.py $WORK_DIR/config/servers.txt $WORK_DIR/tmp/$DOCKER_IMAGE_BASE_FILENAME
 echo 'Complete copying docker image to servers'
 echo
 
 # Clone PipeSwitch repo to the server
 echo 'Clone Pipewitch code to the server'
-ssh aws-pipeswitch-opesource 'git clone --branch dev-dockerfile-base git@github.com:baizh1994/PipeSwitch.git'
+ssh aws-pipeswitch-opesource 'git clone --branch dev git@github.com:baizh1994/PipeSwitch.git'
 echo
 
 # Load the base docker on the server
