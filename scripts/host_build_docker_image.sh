@@ -3,6 +3,7 @@ echo
 
 # Get current work dir
 WORK_DIR=$(pwd)
+mkdir $WORK_DIR/tmp
 echo 'Current work dir:' $WORK_DIR
 echo
 
@@ -35,3 +36,7 @@ ssh aws-pipeswitch-opesource 'git clone --branch dev-dockerfile-base git@github.
 echo
 
 # Load the base docker on the server
+echo 'Load docker image on the server'
+ssh aws-pipeswitch-opesource 'bash ~/PipeSwitch/scripts/server_load_docker_image.sh'
+echo 'Complete loading docker image on the server'
+echo
