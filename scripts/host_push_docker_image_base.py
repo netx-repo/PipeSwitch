@@ -20,7 +20,7 @@ def main():
         print ('%s> Complete copying docker image for base' % server['id'])
 
         print ('%s> Clone PipeSwitch repo' % server['id'])
-        os.system("ssh %s'git clone --branch dev https://github.com/baizh1994/PipeSwitch.git'" % server['id'])
+        os.system("ssh %s 'git clone --branch dev https://github.com/baizh1994/PipeSwitch.git'" % server['id'])
         print ('%s> Complete cloning PipeSwitch repo' % server['id'])
 
         print ('%s> Load docker image for base' % server['id'])
