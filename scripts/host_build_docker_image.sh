@@ -25,7 +25,13 @@ echo 'Complete exporting docker image:' $DOCKER_IMAGE_BASE_FILENAME
 echo
 
 # Copy the base docker to the server
-echo 'Copy docker image to servers'
+echo 'Copy docker image for base to servers'
 python scripts/host_push_docker_image_base.py $WORK_DIR/config/servers.txt $WORK_DIR/tmp/$DOCKER_IMAGE_BASE_FILENAME
-echo 'Complete loading docker image to servers'
+echo 'Complete loading docker image for base to servers'
+echo
+
+# Build the pipeswitch docker on the server
+echo 'Build docker image for pipeswitch on servers'
+python scripts/host_remote_build_docker_image_pipeswitch.py $WORK_DIR/config/servers.txt
+echo 'Complete building docker image for pipeswitch to servers'
 echo
