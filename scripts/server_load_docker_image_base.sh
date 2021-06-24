@@ -1,4 +1,4 @@
-echo 'PipeSwitch demo: load Docker images'
+echo 'PipeSwitch demo: server loads Docker images'
 echo
 
 # Get current work dir

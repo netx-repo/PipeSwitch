@@ -1,4 +1,4 @@
-echo 'PipeSwitch demo: create Docker images'
+echo 'PipeSwitch demo: host creates Docker images'
 echo
 
 # Get current work dir
@@ -26,17 +26,6 @@ echo
 
 # Copy the base docker to the server
 echo 'Copy docker image to servers'
-python scripts/host_copy_docker_image.py $WORK_DIR/config/servers.txt $WORK_DIR/tmp/$DOCKER_IMAGE_BASE_FILENAME
-echo 'Complete copying docker image to servers'
-echo
-
-# Clone PipeSwitch repo to the server
-echo 'Clone Pipewitch code to the server'
-ssh aws-pipeswitch-opesource 'git clone --branch dev https://github.com/baizh1994/PipeSwitch.git'
-echo
-
-# Load the base docker on the server
-echo 'Load docker image on the server'
-ssh aws-pipeswitch-opesource 'bash ~/PipeSwitch/scripts/server_load_docker_image.sh'
-echo 'Complete loading docker image on the server'
+python scripts/host_push_docker_image_base.py $WORK_DIR/config/servers.txt $WORK_DIR/tmp/$DOCKER_IMAGE_BASE_FILENAME
+echo 'Complete loading docker image to servers'
 echo
