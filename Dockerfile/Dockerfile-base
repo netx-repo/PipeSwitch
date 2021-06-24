@@ -8,6 +8,7 @@ RUN git submodule sync
 RUN git submodule update --init --recursive
 RUN conda install -y \
     numpy \
+    scipy \
     ninja \
     pyyaml \
     mkl \
