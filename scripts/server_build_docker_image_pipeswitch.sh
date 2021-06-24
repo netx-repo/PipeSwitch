@@ -13,6 +13,6 @@ echo
 
 # Build the image bash, which compiles PyTorch from source
 echo 'Create docker image:' $DOCKER_IMAGE_PIPESWITCH_TAG
-docker build -t $DOCKER_IMAGE_PIPESWITCH_TAG $WORK_DIR/Dockerfile-pipeswitch
+docker build -t $DOCKER_IMAGE_PIPESWITCH_TAG -f $WORK_DIR/Dockerfile/Dockerfile-pipeswitch $WORK_DIR/Dockerfile
 echo 'Complete creating docker image:' $DOCKER_IMAGE_PIPESWITCH_TAG
 echo
