@@ -17,5 +17,11 @@ bash scripts/environment/ssh_load_docker_image_base.sh
 ### Create the environment END ###
 ##################################
 
+####################
+### Plot figures ###
 
-# Plot each figure
+# PLot figure 5
+bash scripts/figures/figure5/plot_figure5.sh
+
+### Plot figures END ###
+########################

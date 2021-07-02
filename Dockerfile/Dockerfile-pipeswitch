@@ -11,3 +11,6 @@ ENV CMAKE_PREFIX_PATH=/opt/conda/
 RUN python setup.py install
 
 WORKDIR /workspace
+RUN rm -rf PipeSwitch
+
+WORKDIR /workspace

@@ -1,7 +1,7 @@
 import os
 import sys
 
-from util import import_server_list
+from scripts.common.util import import_server_list
 
 def main():
     server_list_path = sys.argv[1]
@@ -19,13 +19,12 @@ def main():
         os.system('scp %s %s' % (src, dst))
         print ('%s> Complete copying docker image for base' % server['id'])
 
-        print ('%s> Clone PipeSwitch repo' % server['id'])
-        os.system("ssh %s 'git clone --branch dev https://github.com/baizh1994/PipeSwitch.git'" % server['id'])
-        print ('%s> Complete cloning PipeSwitch repo' % server['id'])
-
         print ('%s> Load docker image for base' % server['id'])
-        os.system("ssh %s 'bash ~/PipeSwitch/scripts/server_load_docker_image_base.sh'" % server['id'])
+        with RunRemoteRepo(server, 'dev') as rrr:
+            rrr.run("bash ~/PipeSwitch/scripts/server_load_docker_image_base.sh")
         print ('%s> Complete loading docker image for base' % server['id'])
+
+        
 
 if __name__ == '__main__':
     main()

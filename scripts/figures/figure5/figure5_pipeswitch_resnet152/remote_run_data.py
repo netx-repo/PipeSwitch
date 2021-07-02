@@ -1,9 +1,14 @@
+import os
+
+from scripts.common.util import RunDocker
+
 def main():
-    # Create docker: pipeswitch
-    # Start the server: pipeswitch
-    # Start the client
-    # Get and return the data point
-    pass
+    with RunDocker('pipeswitch:pipeswitch', 'pipeswitch', 'figure5_pipeswitch_resnet152') as rd:
+        pass
+        # Start the server: pipeswitch
+        rd.run('python PipeSwitch/scripts/run_data.py')
+        
+        # Get and return the data point
 
 if __name__ == '__main__':
     main()
