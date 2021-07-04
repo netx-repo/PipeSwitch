@@ -8,7 +8,6 @@ def main():
     print (server_list_path)
 
     server_list = import_server_list(server_list_path)
-    print ("Run local part correctly")
 
     with RunRemoteRepo(server_list[0], 'dev') as rrr:
         rrr.run("bash ~/PipeSwitch/scripts/figures/figure5/figure5_pipeswitch_resnet152/remote_run_data.sh")
