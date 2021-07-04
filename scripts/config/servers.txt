@@ -1,1 +1,1 @@
-18.205.2.163, aws-pipeswitch-opesource
+PYTHONPATH=$PYTHONPATH:$WORK_DIR , aws-pipeswitch-opesource
