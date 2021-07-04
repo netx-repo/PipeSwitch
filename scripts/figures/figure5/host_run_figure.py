@@ -7,7 +7,7 @@ systems = [
     'ready_model', 
     'pipeswitch', 
     # 'mps', 
-    'stop_and_start'
+    'kill_restart'
 ]
 
 models = [
