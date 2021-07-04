@@ -26,7 +26,7 @@ class RunDocker:
         self.run('docker exec -it -w /workspace %s git clone --branch %s https://github.com/baizh1994/PipeSwitch.git' % (self.name, self.branch))
         return self
 
-    def __exit(self, *args, **kwargs):
+    def __exit__(self, *args, **kwargs):
         os.system('docker stop %s' % self.name)
 
     def run(self, cmd):

@@ -11,4 +11,4 @@ source $WORK_DIR/scripts/config/env.sh
 # echo 'Import global variables'
 # echo
 
-PYTHONPATH=$WORKDIR python $WORK_DIR/scripts/figures/figure5/figure5_pipeswitch_resnet152/remote_run_data.py
+PYTHONPATH=$WORK_DIR python $WORK_DIR/scripts/figures/figure5/figure5_pipeswitch_resnet152/remote_run_data.py
