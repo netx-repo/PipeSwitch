@@ -1,7 +1,17 @@
 import os
 
-systems = ['ready_model', 'pipeswitch', 'mps', 'stop_and_start']
-models = ['resnet152', 'inception_v3', 'bert_base']
+systems = [
+    # 'ready_model', 
+    'pipeswitch', 
+    # 'mps', 
+    # 'stop_and_start'
+]
+
+models = [
+    'resnet152',
+    # 'inception_v3',
+    # 'bert_base',
+]
 
 def main():
     data = {}
