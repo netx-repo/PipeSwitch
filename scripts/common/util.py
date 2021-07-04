@@ -8,6 +8,7 @@ class RunRemoteRepo:
     def __enter__(self):
         os.system("ssh %s 'rm -rf ~/PipeSwitch'" % self.server['id'])
         os.system("ssh %s 'git clone --branch %s https://github.com/baizh1994/PipeSwitch.git'" % (self.server['id'], self.branch))
+        return self
 
     def __exit__(self, *args, **kwargs):
         os.system("ssh %s 'rm -rf ~/PipeSwitch'" % self.server['id'])
@@ -24,6 +25,7 @@ class RunDocker:
     def __enter__(self):
         os.system('docker run --name %s --rm -it -d --gpus all -w /workspace %s bash' % (self.name, self.image))
         self.run('docker exec -it -w /workspace %s git clone --branch %s https://github.com/baizh1994/PipeSwitch.git' % (self.name, self.branch))
+        return self
 
     def __exit(self, *args, **kwargs):
         os.system('docker stop %s' % self.name)
