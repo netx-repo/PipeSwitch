@@ -12,7 +12,7 @@ systems = [
 
 models = [
     'resnet152',
-    # 'inception_v3',
+    'inception_v3',
     # 'bert_base',
 ]
 
