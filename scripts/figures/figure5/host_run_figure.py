@@ -20,7 +20,7 @@ def main():
     data = {}
     for system in systems:
         for model in models:
-            print ('PLot figure 5: %s, %s' % (system, model))
+            print ('Plot figure 5: %s, %s' % (system, model))
 
             # Run the experiment
             result = subprocess.run(['bash', 'scripts/figures/figure5/figure5_%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
