@@ -8,7 +8,7 @@ mkdir $WORK_DIR/tmp
 # echo
 
 # Import global variables
-source $WORK_DIR/config/env.sh
+source $WORK_DIR/scripts/config/env.sh
 # echo 'Import global variables'
 # echo
 
