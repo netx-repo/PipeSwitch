@@ -9,7 +9,7 @@ class RunRemoteRepo:
         os.system("ssh %s 'rm -rf ~/PipeSwitch'" % self.server['id'])
         os.system("ssh %s 'git clone --branch %s https://github.com/baizh1994/PipeSwitch.git'" % (self.server['id'], self.branch))
 
-    def __exit__(self, **args, **kwargs):
+    def __exit__(self, *args, **kwargs):
         os.system("ssh %s 'rm -rf ~/PipeSwitch'" % self.server['id'])
 
     def run(self, cmd):

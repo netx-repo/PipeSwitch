@@ -1,27 +1,27 @@
-##############################
-### Create the environment ###
+# ##############################
+# ### Create the environment ###
 
-# Build basic Docker image on host
-bash scripts/environment/host_build_docker_image_base.sh
+# # Build basic Docker image on host
+# bash scripts/environment/host_build_docker_image_base.sh
 
-# Export basic Docker image on host
-bash scripts/environment/host_export_docker_image_base.sh
+# # Export basic Docker image on host
+# bash scripts/environment/host_export_docker_image_base.sh
 
 # Copy basic Docker image to servers
 bash scripts/environment/host_push_docker_image_base.sh
 
-# Load basic Docker image on servers
-bash scripts/environment/ssh_load_docker_image_base.sh
+# # Load basic Docker image on servers
+# bash scripts/environment/ssh_load_docker_image_base.sh
 
 
-### Create the environment END ###
-##################################
+# ### Create the environment END ###
+# ##################################
 
-####################
-### Plot figures ###
+# ####################
+# ### Plot figures ###
 
-# PLot figure 5
-bash scripts/figures/figure5/plot_figure5.sh
+# # PLot figure 5
+# bash scripts/figures/figure5/plot_figure5.sh
 
-### Plot figures END ###
-########################
+# ### Plot figures END ###
+# ########################
