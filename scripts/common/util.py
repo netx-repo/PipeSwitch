@@ -22,7 +22,7 @@ class RunDocker:
         self.branch = branch
 
     def __enter__(self):
-        os.system('docker run --name %s --rm -d --gpus all -w /workspace %s bash' % (self.name, self.image))
+        os.system('docker run --name %s --rm -it -d --gpus all -w /workspace %s bash' % (self.name, self.image))
         self.run('git clone --branch %s https://github.com/baizh1994/PipeSwitch.git' % self.branch)
         return self
 
