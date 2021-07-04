@@ -15,9 +15,9 @@ def main():
         src = image_path
         dst = server['id'] + ':~/'
         
-        print ('%s> Copy docker image for base' % server['id'])
-        os.system('scp %s %s' % (src, dst))
-        print ('%s> Complete copying docker image for base' % server['id'])
+        # print ('%s> Copy docker image for base' % server['id'])
+        # os.system('scp %s %s' % (src, dst))
+        # print ('%s> Complete copying docker image for base' % server['id'])
 
         print ('%s> Load docker image for base' % server['id'])
         with RunRemoteRepo(server, 'dev') as rrr:

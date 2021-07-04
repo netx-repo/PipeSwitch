@@ -7,7 +7,7 @@ WORK_DIR=$(pwd)/PipeSwitch
 # echo
 
 # Import global variables
-source $WORK_DIR/scripts/scripts/config/env.sh
+source $WORK_DIR/scripts/config/env.sh
 # echo 'Import global variables'
 # echo
 
