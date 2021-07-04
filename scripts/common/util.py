@@ -6,7 +6,6 @@ class RunRemoteRepo:
         self.branch = branch
 
     def __enter__(self):
-        os.system("ssh %s 'rm -rf ~/PipeSwitch'" % self.server['id'])
         os.system("ssh %s 'git clone --branch %s https://github.com/baizh1994/PipeSwitch.git'" % (self.server['id'], self.branch))
         return self
 
