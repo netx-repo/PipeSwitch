@@ -4,7 +4,6 @@ from scripts.common.util import RunDocker
 
 def main():
     with RunDocker('pipeswitch:pipeswitch', 'pipeswitch', 'figure5_pipeswitch_resnet152') as rd:
-        pass
         # Start the server: pipeswitch
         rd.run('python PipeSwitch/scripts/run_data.py')
         
