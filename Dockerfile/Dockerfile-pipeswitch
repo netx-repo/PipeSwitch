@@ -15,4 +15,6 @@ RUN rm -rf PipeSwitch
 
 RUN pip install scipy
 
+ENV PYTHONPATH=/workspace/PipeSwitch
+
 WORKDIR /workspace
