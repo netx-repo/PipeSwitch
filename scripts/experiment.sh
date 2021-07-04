@@ -12,6 +12,7 @@
 
 # Load basic Docker image on servers
 # bash scripts/environment/host_build_docker_image_pipeswitch.sh
+# bash scripts/environment/host_build_docker_image_ready_model.sh
 
 
 # ### Create the environment END ###

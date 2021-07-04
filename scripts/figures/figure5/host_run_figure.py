@@ -4,15 +4,15 @@ import subprocess
 OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
-    # 'ready_model', 
-    'pipeswitch', 
+    'ready_model', 
+    # 'pipeswitch', 
     # 'mps', 
     # 'stop_and_start'
 ]
 
 models = [
     'resnet152',
-    'inception_v3',
+    # 'inception_v3',
     # 'bert_base',
 ]
 
