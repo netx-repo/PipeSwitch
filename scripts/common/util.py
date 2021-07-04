@@ -30,7 +30,7 @@ class RunDocker:
         os.system('docker stop %s' % self.name)
 
     def run(self, cmd):
-        os.system('docker exec -it -w /workspace %s %s' % (self.name, cmd))
+        os.system('docker exec -w /workspace %s %s' % (self.name, cmd))
 
 def import_server_list(path):
     server_list = []
