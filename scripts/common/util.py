@@ -23,7 +23,7 @@ class RunDocker:
 
     def __enter__(self):
         os.system('docker run --name %s --rm -it -d --gpus all -w /workspace %s bash' % (self.name, self.image))
-        self.run('docker exec -it -w /workspace %s git clone --branch %s https://github.com/baizh1994/PipeSwitch.git' % (self.name, self.branch))
+        self.run('git clone --branch %s https://github.com/baizh1994/PipeSwitch.git' % self.branch)
         return self
 
     def __exit__(self, *args, **kwargs):
