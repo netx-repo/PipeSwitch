@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 OUTPUT_FLAG = 'OpenSourceOutputFlag'
@@ -20,7 +21,8 @@ def main():
     for system in systems:
         for model in models:
             # Run the experiment
-            result = subprocess.run(['bash', 'scripts/figures/figure5/figure5_%s_%s/host_run_data.sh' % (system, model)])
+            result = subprocess.run(['bash', 'scripts/figures/figure5/figure5_%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
+            # os.system('bash scripts/figures/figure5/figure5_%s_%s/host_run_data.sh' % (system, model))
 
             # Get output
             output = result.stdout.decode('utf-8')
@@ -29,9 +31,9 @@ def main():
                 line = line.strip()
                 if OUTPUT_FLAG in line:
                     parts = line.split(',')
-                    latency = float(parts[0].strip())
-                    stdev = float(parts[1].strip())
-                    count = int(parts[2])
+                    latency = float(parts[1].strip())
+                    stdev = float(parts[2].strip())
+                    count = int(parts[3])
                     data[(system, model)] = latency
                     break
     print (data)
