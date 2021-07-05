@@ -22,6 +22,7 @@ models = [
 def collect_data():
     data = {}
     for system in systems:
+        data[system] = {}
         for model in models:
             print ('Plot figure 5: %s, %s' % (system, model))
 
@@ -38,24 +39,25 @@ def collect_data():
                     latency = float(parts[1].strip())
                     stdev = float(parts[2].strip())
                     count = int(parts[3])
-                    data[(system, model)] = latency
+                    data[system][model] = latency
                     break
 
 
-    data[('mps', 'resnet152')] = 340
-    data[('mps', 'inception_v3')] = 262
-    data[('mps', 'bert_base')] = 252
-    data[('ready_model', 'bert_base')] = 48
-    data[('pipeswitch', 'bert_base')] = 58
-    data[('kill_restart', 'bert_base')] =6419
+    data['mps'] = {}
+    data['mps']['resnet152'] = 340
+    data['mps']['inception_v3'] = 262
+    data['mps']['bert_base'] = 252
+    data['ready_model']['bert_base'] = 48
+    data['pipeswitch']['bert_base'] = 58
+    data['kill_restart']['bert_base'] = 6419
     
     return data
 
 def process_data(data):
-    ready_model = [data[('ready_model, resnet152')], data[('ready_model, inception_v3')], data[('ready_model, bert_base')]]
-    pipeswitch = [data[('pipeswitch, resnet152')], data[('pipeswitch, inception_v3')], data[('pipeswitch, bert_base')]]
-    mps = [data[('mps, resnet152')], data[('mps, inception_v3')], data[('mps, bert_base')]]
-    kill_restart = [data[('kill_restart, resnet152')], data[('kill_restart, inception_v3')], data[('kill_restart, bert_base')]]
+    ready_model = [data['ready_model']['resnet152'], data['ready_model']['inception_v3'], data['ready_model']['bert_base']]
+    pipeswitch = [data['pipeswitch']['resnet152'], data['pipeswitch']['inception_v3'], data['pipeswitch']['bert_base']]
+    mps = [data['mps']['resnet152'], data['mps']['inception_v3'], data['mps']['bert_base']]
+    kill_restart = [data['kill_restart']['resnet152'], data['kill_restart']['inception_v3'], data['kill_restart']['bert_base']]
     return ready_model, pipeswitch, mps, kill_restart
 
 def plot_figure(data):
@@ -64,7 +66,7 @@ def plot_figure(data):
 
     models = ["ResNet152", "Inception_v3", "Bert_base"]
     # ready_model = [33.260075, 30.04206, 48.017385]
-    # our_sys = [39.275564, 35.448869, 58.291377]
+    # pipeswitch = [39.275564, 35.448869, 58.291377]
     # mps = [340.283585, 262.294412, 252.533078]
     # kill_restart = [6508.667618, 7566.112161, 6419.338626]
     ready_model, pipeswitch, mps, kill_restart = data
@@ -89,7 +91,7 @@ def plot_figure(data):
                     edgecolor='black', linewidth=0.5, color="k"
                     )
 
-    rects4 = ax.bar(x , our_sys, width/n, label=sys_name,
+    rects4 = ax.bar(x , pipeswitch, width/n, label=sys_name,
                     linewidth=0.5,
                     edgecolor='black', color="tab:blue")
 
@@ -108,7 +110,7 @@ def plot_figure(data):
     rects2_1 = ax2.bar(x - width/n, ready_model, width/n, label='Ready model', 
                     edgecolor='black', linewidth=0.5, color='k'
                     )
-    rects2_4 = ax2.bar(x , our_sys, width/n, label=sys_name,
+    rects2_4 = ax2.bar(x , pipeswitch, width/n, label=sys_name,
                     linewidth=0.5,
                     edgecolor='black', color="tab:blue")
 

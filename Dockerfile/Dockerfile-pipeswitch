@@ -13,7 +13,8 @@ RUN python setup.py install
 WORKDIR /workspace
 RUN rm -rf PipeSwitch
 
-RUN pip install scipy
+RUN pip install --upgrade pip
+RUN pip install scipy transformers
 
 ENV PYTHONPATH=/workspace/PipeSwitch
 
