@@ -14,9 +14,9 @@ systems = [
 ]
 
 models = [
-    'resnet152',
-    'inception_v3',
-    # 'bert_base',
+    # 'resnet152',
+    # 'inception_v3',
+    'bert_base',
 ]
 
 def collect_data():
@@ -43,13 +43,13 @@ def collect_data():
                     break
 
 
-    data['mps'] = {}
-    data['mps']['resnet152'] = 340
-    data['mps']['inception_v3'] = 262
-    data['mps']['bert_base'] = 252
-    data['ready_model']['bert_base'] = 48
-    data['pipeswitch']['bert_base'] = 58
-    data['kill_restart']['bert_base'] = 6419
+    # data['mps'] = {}
+    # data['mps']['resnet152'] = 340
+    # data['mps']['inception_v3'] = 262
+    # data['mps']['bert_base'] = 252
+    # data['ready_model']['bert_base'] = 48
+    # data['pipeswitch']['bert_base'] = 58
+    # data['kill_restart']['bert_base'] = 6419
     
     return data
 
@@ -165,6 +165,8 @@ def main():
 
     # Collect data with experiments
     data = collect_data()
+    print (data)
+    return
 
     # Process data
     data = process_data(data)
