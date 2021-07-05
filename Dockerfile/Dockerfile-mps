@@ -1,15 +1,9 @@
 FROM pipeswitch:base
 
 WORKDIR /workspace
-RUN git clone https://github.com/baizh1994/PipeSwitch.git
-RUN ls -al
-
-WORKDIR /workspace/PipeSwitch
-RUN git checkout dev
-RUN ls -al
+RUN git clone --branch dev https://github.com/baizh1994/PipeSwitch.git
 
 WORKDIR /workspace/PipeSwitch/mps
-RUN ls -al
 RUN bash overwrite.sh /workspace/pytorch/
 
 WORKDIR /workspace/pytorch
