@@ -8,9 +8,9 @@ OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
     'ready_model', 
-    'pipeswitch', 
+    # 'pipeswitch', 
     # 'mps', 
-    'kill_restart'
+    # 'kill_restart'
 ]
 
 models = [
@@ -27,7 +27,7 @@ def collect_data():
             print ('Plot figure 5: %s, %s' % (system, model))
 
             # Run the experiment
-            result = subprocess.run(['bash', 'scripts/figures/figure5/figure5_%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
+            result = subprocess.run(['bash', 'scripts/figures/figure5/host_run_data.sh',  'figure5_%s_%s' % (system, model)], stdout=subprocess.PIPE)
 
             # Get output
             output = result.stdout.decode('utf-8')
@@ -186,6 +186,8 @@ def main():
 
     # Collect data with experiments
     data = collect_data()
+    print (Data)
+    return
 
     # Process data
     data = process_data(data)
