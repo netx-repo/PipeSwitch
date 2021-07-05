@@ -52,10 +52,10 @@ def collect_data():
     return data
 
 def process_data(data):
-    ready_model = [data[('ready_model, resnet152'), data[('ready_model, inception_v3'), data[('ready_model, bert_base')]
-    pipeswitch = [data[('pipeswitch, resnet152'), data[('pipeswitch, inception_v3'), data[('pipeswitch, bert_base')]
-    mps = [data[('mps, resnet152'), data[('mps, inception_v3'), data[('mps, bert_base')]
-    kill_restart = [data[('kill_restart, resnet152'), data[('kill_restart, inception_v3'), data[('kill_restart, bert_base')]
+    ready_model = [data[('ready_model, resnet152')], data[('ready_model, inception_v3')], data[('ready_model, bert_base')]]
+    pipeswitch = [data[('pipeswitch, resnet152')], data[('pipeswitch, inception_v3')], data[('pipeswitch, bert_base')]]
+    mps = [data[('mps, resnet152')], data[('mps, inception_v3')], data[('mps, bert_base')]]
+    kill_restart = [data[('kill_restart, resnet152')], data[('kill_restart, inception_v3')], data[('kill_restart, bert_base')]]
     return ready_model, pipeswitch, mps, kill_restart
 
 def plot_figure(data):
