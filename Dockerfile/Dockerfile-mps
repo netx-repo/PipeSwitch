@@ -3,7 +3,7 @@ FROM pipeswitch:base
 WORKDIR /workspace
 RUN git clone --branch dev https://github.com/baizh1994/PipeSwitch.git
 
-WORKDIR /workspace/PipeSwitch/test
+WORKDIR /workspace/PipeSwitch/mps
 RUN bash overwrite.sh /workspace/pytorch/
 
 WORKDIR /workspace/pytorch
