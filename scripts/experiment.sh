@@ -25,10 +25,10 @@
 # mkdir output
 
 # PLot figure 5
-# bash scripts/figures/figure5/plot_figure.sh
+bash scripts/figures/figure5/plot_figure.sh
 
 # PLot figure 6
-bash scripts/figures/figure6/plot_figure.sh
+# bash scripts/figures/figure6/plot_figure.sh
 
 # ### Plot figures END ###
 # ########################

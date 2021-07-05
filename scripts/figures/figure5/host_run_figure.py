@@ -27,7 +27,7 @@ def collect_data():
             print ('Plot figure 5: %s, %s' % (system, model))
 
             # Run the experiment
-            result = subprocess.run(['bash', 'scripts/figures/figure5/host_run_data.sh',  'figure5_%s_%s' % (system, model)], stdout=subprocess.PIPE)
+            result = subprocess.run(['bash', 'scripts/figures/host_run_data.sh',  'figure5_%s_%s' % (system, model)], stdout=subprocess.PIPE)
 
             # Get output
             output = result.stdout.decode('utf-8')
