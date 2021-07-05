@@ -25,7 +25,7 @@
 # mkdir output
 
 # PLot figure 5
-bash scripts/figures/figure5/plot_figure.sh
+bash scripts/figures/plot_figure.sh figure5
 
 # PLot figure 6
 # bash scripts/figures/figure6/plot_figure.sh
