@@ -69,6 +69,7 @@ def process_data(data):
     #     data['mps']['inception_v3'], 
     #     # data['mps']['bert_base']
     # ]
+    mps = None
     kill_restart = [
         data['kill_restart']['resnet152'], 
         data['kill_restart']['inception_v3'], 
@@ -185,8 +186,6 @@ def main():
 
     # Collect data with experiments
     data = collect_data()
-    print (data)
-    return
 
     # Process data
     data = process_data(data)
