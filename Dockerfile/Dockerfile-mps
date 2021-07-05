@@ -1,0 +1,22 @@
+FROM pipeswitch:base
+
+WORKDIR /workspace
+RUN git clone --branch dev https://github.com/baizh1994/PipeSwitch.git
+
+WORKDIR /workspace/PipeSwitch/mps
+RUN bash overwrite.sh /workspace/pytorch/
+
+WORKDIR /workspace/pytorch
+ENV CMAKE_PREFIX_PATH=/opt/conda/
+RUN python setup.py install
+
+WORKDIR /workspace
+RUN rm -rf PipeSwitch
+
+RUN pip install --upgrade pip
+RUN pip install scipy
+RUN pip install tqdm boto3 requests regex sentencepiece sacremoses transformers
+
+ENV PYTHONPATH=/workspace/PipeSwitch
+
+WORKDIR /workspace
