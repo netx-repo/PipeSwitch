@@ -3,7 +3,8 @@ FROM pytorch/pytorch:1.3-cuda10.1-cudnn7-devel
 WORKDIR /workspace
 
 RUN pip install --upgrade pip
-RUN pip install scipy transformers
+RUN pip install scipy
+RUN pip install tqdm boto3 requests regex sentencepiece sacremoses transformers
 
 ENV PYTHONPATH=/workspace/PipeSwitch
 

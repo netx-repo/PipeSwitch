@@ -14,7 +14,8 @@ WORKDIR /workspace
 RUN rm -rf PipeSwitch
 
 RUN pip install --upgrade pip
-RUN pip install scipy transformers
+RUN pip install scipy
+RUN pip install tqdm boto3 requests regex sentencepiece sacremoses transformers
 
 ENV PYTHONPATH=/workspace/PipeSwitch
 
