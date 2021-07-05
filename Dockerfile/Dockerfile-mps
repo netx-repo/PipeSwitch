@@ -4,8 +4,6 @@ WORKDIR /workspace
 RUN git clone --branch dev https://github.com/baizh1994/PipeSwitch.git
 
 WORKDIR /workspace/PipeSwitch/mps
-RUN pwd
-RUN ls
 RUN bash overwrite.sh /workspace/pytorch/
 
 WORKDIR /workspace/pytorch
