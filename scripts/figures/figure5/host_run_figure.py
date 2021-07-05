@@ -183,10 +183,9 @@ def plot_figure(data):
     plt.savefig(file_name, format="pdf")
 
 def main():
-
     # Collect data with experiments
     data = collect_data()
-    print (Data)
+    print (data)
     return
 
     # Process data
