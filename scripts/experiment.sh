@@ -21,6 +21,8 @@
 # ####################
 # ### Plot figures ###
 
+mkdir output
+
 # PLot figure 5
 bash scripts/figures/figure5/plot_figure5.sh
 
