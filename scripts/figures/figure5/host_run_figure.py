@@ -14,9 +14,9 @@ systems = [
 ]
 
 models = [
-    # 'resnet152',
-    # 'inception_v3',
-    'bert_base',
+    'resnet152',
+    'inception_v3',
+    # 'bert_base',
 ]
 
 def collect_data():
@@ -54,17 +54,37 @@ def collect_data():
     return data
 
 def process_data(data):
-    ready_model = [data['ready_model']['resnet152'], data['ready_model']['inception_v3'], data['ready_model']['bert_base']]
-    pipeswitch = [data['pipeswitch']['resnet152'], data['pipeswitch']['inception_v3'], data['pipeswitch']['bert_base']]
-    mps = [data['mps']['resnet152'], data['mps']['inception_v3'], data['mps']['bert_base']]
-    kill_restart = [data['kill_restart']['resnet152'], data['kill_restart']['inception_v3'], data['kill_restart']['bert_base']]
+    ready_model = [
+        data['ready_model']['resnet152'], 
+        data['ready_model']['inception_v3'], 
+        # data['ready_model']['bert_base']
+    ]
+    pipeswitch = [
+        data['pipeswitch']['resnet152'], 
+        data['pipeswitch']['inception_v3'], 
+        # data['pipeswitch']['bert_base']
+    ]
+    # mps = [
+    #     data['mps']['resnet152'], 
+    #     data['mps']['inception_v3'], 
+    #     # data['mps']['bert_base']
+    # ]
+    kill_restart = [
+        data['kill_restart']['resnet152'], 
+        data['kill_restart']['inception_v3'], 
+        # data['kill_restart']['bert_base']
+    ]
     return ready_model, pipeswitch, mps, kill_restart
 
 def plot_figure(data):
     sys_name = "PipeSwitch"
     file_name = "output/figure5.pdf"
 
-    models = ["ResNet152", "Inception_v3", "Bert_base"]
+    models = [
+        "ResNet152", 
+        "Inception_v3", 
+        # "Bert_base"
+    ]
     # ready_model = [33.260075, 30.04206, 48.017385]
     # pipeswitch = [39.275564, 35.448869, 58.291377]
     # mps = [340.283585, 262.294412, 252.533078]
@@ -99,8 +119,8 @@ def plot_figure(data):
     #                 linewidth=0.5,
     #                 edgecolor='black')
 
-    rects3 = ax.bar(x + width/n, mps, width/n, label='MPS', 
-                    edgecolor='black', linewidth=0.5, color="tab:green")
+    # rects3 = ax.bar(x + width/n, mps, width/n, label='MPS', 
+    #                 edgecolor='black', linewidth=0.5, color="tab:green")
 
     rects2 = ax.bar(x + 2 * width/n, kill_restart, width/n, label='Stop-and-start', 
                     edgecolor='black', linewidth=0.5, color="tab:orange")
@@ -118,9 +138,9 @@ def plot_figure(data):
     #                 linewidth=0.5,
     #                 edgecolor='black')
 
-    rects2_3 = ax2.bar(x + width/n, mps, width/n, label='MPS', 
-                    linewidth=0.5,
-                    edgecolor='black', color="tab:green")
+    # rects2_3 = ax2.bar(x + width/n, mps, width/n, label='MPS', 
+    #                 linewidth=0.5,
+    #                 edgecolor='black', color="tab:green")
 
     rects2_2 = ax2.bar(x + 2 * width/n, kill_restart, width/n, label='Stop-and-start', 
                     edgecolor='black', linewidth=0.5, color="tab:orange")
