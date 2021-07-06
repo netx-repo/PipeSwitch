@@ -7,10 +7,10 @@ import numpy as np
 OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
-    'ready_model',
+    # 'ready_model',
     # 'pipeswitch', 
     # 'mps', 
-    # 'kill_restart'
+    'kill_restart'
 ]
 
 intervals = [
@@ -18,7 +18,7 @@ intervals = [
     '2s',
     '5s',
     '10s',
-    # '30s'
+    '30s'
 ]
 
 def collect_data():
