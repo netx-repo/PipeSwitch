@@ -8,7 +8,7 @@
 # bash scripts/environment/host_export_docker_image_base.sh
 
 # Copy basic Docker image to servers
-# bash scripts/environment/host_push_docker_image_base.sh
+bash scripts/environment/host_push_docker_image_base.sh
 
 # Load basic Docker image on servers
 # bash scripts/environment/host_build_docker_image_pipeswitch.sh
@@ -25,7 +25,7 @@
 # mkdir output
 
 # PLot figure 5
-bash scripts/figures/plot_figure.sh figure5
+# bash scripts/figures/plot_figure.sh figure5
 
 # PLot figure 6
 # bash scripts/figures/plot_figure.sh figure6
