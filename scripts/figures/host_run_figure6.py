@@ -14,9 +14,9 @@ systems = [
 ]
 
 intervals = [
-    # '1s',
-    # '2s',
-    # '5s',
+    '1s',
+    '2s',
+    '5s',
     '10s',
     # '30s'
 ]
@@ -42,7 +42,7 @@ def collect_data():
                     latency_avg = float(parts[2].strip())
                     latency_min = float(parts[3].strip())
                     latency_max = float(parts[4].strip())
-                    data[system][model] = [throughput, latency_avg, latency_min, latency_max]
+                    data[system][interval] = [throughput, latency_avg, latency_min, latency_max]
                     break
     
     return data
