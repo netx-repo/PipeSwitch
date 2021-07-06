@@ -5,4 +5,5 @@ WORK_DIR=$(pwd)/PipeSwitch
 source $WORK_DIR/scripts/config/env.sh
 
 LABEL=$1
-PYTHONPATH=$PYTHONPATH:$WORK_DIR python $WORK_DIR/scripts/figures/remote_run_data.py $LABEL
+image=$2
+PYTHONPATH=$PYTHONPATH:$WORK_DIR python $WORK_DIR/scripts/figures/remote_run_data.py $LABEL $IMAGE

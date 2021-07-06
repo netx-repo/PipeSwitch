@@ -5,4 +5,5 @@ WORK_DIR=$(pwd)
 source $WORK_DIR/scripts/config/env.sh
 
 LABEL=$1
-PYTHONPATH=$PYTHONPATH:$WORK_DIR python scripts/figures/host_run_data.py $WORK_DIR/scripts/config/servers.txt $LABEL
+IMAGE=$2
+PYTHONPATH=$PYTHONPATH:$WORK_DIR python scripts/figures/host_run_data.py $WORK_DIR/scripts/config/servers.txt $LABEL $IMAGE

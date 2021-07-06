@@ -29,7 +29,7 @@ def collect_data():
             print ('Plot figure 6: %s, %s' % (system, interval))
 
             # Run the experiment
-            result = subprocess.run(['bash', 'scripts/figures/host_run_data.sh',  'figure6_%s_%s' % (system, interval)], stdout=subprocess.PIPE)
+            result = subprocess.run(['bash', 'scripts/figures/host_run_data.sh',  'figure6_%s_%s' % (system, interval), system], stdout=subprocess.PIPE)
 
             # Get output
             output = result.stdout.decode('utf-8')
