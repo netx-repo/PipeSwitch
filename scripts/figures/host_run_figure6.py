@@ -8,17 +8,17 @@ OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
     # 'ready_model',
-    # 'pipeswitch', 
+    'pipeswitch', 
     # 'mps', 
-    'kill_restart'
+    # 'kill_restart'
 ]
 
 intervals = [
-    '1s',
-    '2s',
-    '5s',
+    # '1s',
+    # '2s',
+    # '5s',
     '10s',
-    '30s'
+    # '30s'
 ]
 
 def collect_data():

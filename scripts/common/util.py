@@ -16,9 +16,9 @@ class RunRemoteRepo:
         os.system("ssh %s '%s'" % (self.server['id'], cmd))
 
 class RunDocker:
-    def __init__(self, image, label, branch):
+    def __init__(self, image, branch):
         self.image = image
-        self.name = 'pipeswitch-%s' % label
+        self.name = 'pipeswitch-%s' % branch
         self.branch = branch
 
     def __enter__(self):
