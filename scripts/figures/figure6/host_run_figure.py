@@ -7,8 +7,8 @@ import numpy as np
 OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
-    'ready_model',
-    # 'pipeswitch', 
+    # 'ready_model',
+    'pipeswitch', 
     # 'mps', 
     # 'kill_restart'
 ]
