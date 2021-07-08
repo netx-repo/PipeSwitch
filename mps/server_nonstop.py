@@ -7,9 +7,9 @@ import importlib
 import torch
 import torch.multiprocessing as mp
 
-from experiments.util import TcpServer, TcpAgent, timestamp
-from experiments.server_nonstop.train import TrainProc
-from experiments.server_nonstop.inference import InferProc
+from util.util import TcpServer, TcpAgent, timestamp
+from mps.train import TrainProc
+from mps.inference import InferProc
 
 def func_get_request(active_model_name, qout):
     # Listen connections
