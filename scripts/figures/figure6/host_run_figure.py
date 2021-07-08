@@ -18,7 +18,7 @@ intervals = [
     '2s',
     '5s',
     '10s',
-    '30s'
+    # '30s'
 ]
 
 def collect_data():
