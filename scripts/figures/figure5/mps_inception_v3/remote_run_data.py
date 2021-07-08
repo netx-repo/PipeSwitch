@@ -4,7 +4,7 @@ import sys
 from scripts.common.util import RunDocker
 
 def main():
-    with RunDocker('pipeswitch:ready_model', 'figure5_mps_inception_v3') as rd:
+    with RunDocker('pipeswitch:mps', 'figure5_mps_inception_v3') as rd:
         # Start the server: ready_model
         rd.run('python PipeSwitch/scripts/run_data.py')
         
