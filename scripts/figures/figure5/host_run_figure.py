@@ -7,15 +7,15 @@ import numpy as np
 OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
-    'ready_model', 
-    'pipeswitch', 
-    # 'mps', 
-    'kill_restart'
+    # 'ready_model', 
+    # 'pipeswitch', 
+    'mps', 
+    # 'kill_restart'
 ]
 
 models = [
     'resnet152',
-    'inception_v3',
+    # 'inception_v3',
     # 'bert_base',
 ]
 
@@ -185,8 +185,8 @@ def plot_figure(data):
 def main():
     # Collect data with experiments
     data = collect_data()
-    print (data)
-    return
+    # print (data)
+    # return
 
     # Process data
     data = process_data(data)
