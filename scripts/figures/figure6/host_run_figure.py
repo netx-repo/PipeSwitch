@@ -9,7 +9,7 @@ OUTPUT_FLAG = 'OpenSourceOutputFlag'
 systems = [
     'ready_model',
     'pipeswitch', 
-    # 'mps', 
+    'mps', 
     'kill_restart'
 ]
 
@@ -18,7 +18,7 @@ intervals = [
     '2s',
     '5s',
     '10s',
-    # '30s'
+    '30s'
 ]
 
 def collect_data():
@@ -65,8 +65,8 @@ def plot_figure_throughput(data):
     # mps = [98.5, 100.61999999999999, 102.16666666666666, 102.18799999999999, 103.79733333333334]
     # # unified_memory = [119.39333333333336, 140.99333333333334, 159.41333333333333, 165.61599999999999, 165.90133333333333]
 
-    # ready_model, pipeswitch, mps, kill_restart = data
-    ready_model, pipeswitch, kill_restart = data
+    ready_model, pipeswitch, mps, kill_restart = data
+    # ready_model, pipeswitch, kill_restart = data
     upper_bound = ready_model[3] # ready_model_10s
 
     x = np.arange(len(intervals))
@@ -82,8 +82,8 @@ def plot_figure_throughput(data):
     rects2 = ax.bar(x - width/n, kill_restart, width/n, label='Stop-and-start', linewidth=0.5,
                     edgecolor='black', color='tab:orange')
 
-    # rects3 = ax.bar(x , mps, width/n, label='MPS', linewidth=0.5,
-    #                 edgecolor='black', color='tab:green')
+    rects3 = ax.bar(x , mps, width/n, label='MPS', linewidth=0.5,
+                    edgecolor='black', color='tab:green')
 
     rects1 = ax.bar(x + width/n, pipeswitch, width/n, label='PipeSwitch', linewidth=0.5,
                     edgecolor='black', color='tab:blue')
@@ -92,8 +92,8 @@ def plot_figure_throughput(data):
     # ax.set_title('End to End Latency: vs Simple Transmission (V100)')
     ax.set_xticks(x)
     ax.set_xticklabels(intervals)
-    # ax.legend([rects1, rects3, rects2], ['PipeSwitch', 'MPS', 'Stop-and-start'],
-    ax.legend([rects1, rects2], ['PipeSwitch', 'Stop-and-start'],
+    ax.legend([rects1, rects3, rects2], ['PipeSwitch', 'MPS', 'Stop-and-start'],
+    # ax.legend([rects1, rects2], ['PipeSwitch', 'Stop-and-start'],
         frameon=False, ncol=2, loc='upper left',
             bbox_to_anchor=(0.0, 1.05),
             prop={'size': font_size-1})
@@ -156,10 +156,10 @@ def plot_figure_latency(data):
     #                     [46.45140401471612, 318.1096769179011], 
     #                     [44.879877990544884, 326.2870665132393]]).T
 
-    # pipeswitch, pipeswitch_err, mps, mps_err, kill_restart, kill_restart_err = data
-    ready_model, ready_model_yerr, pipeswitch, pipeswitch_yerr, kill_restart, kill_restart_yerr = data
+    ready_model, ready_model_yerr, pipeswitch, pipeswitch_err, mps, mps_err, kill_restart, kill_restart_err = data
+    # ready_model, ready_model_yerr, pipeswitch, pipeswitch_yerr, kill_restart, kill_restart_yerr = data
     pipeswitch_yerr = np.array(pipeswitch_yerr).T
-    # mps_yerr = np.array(mps_yerr).T
+    mps_yerr = np.array(mps_yerr).T
     kill_restart_yerr = np.array(kill_restart_yerr).T
     lower_bound = ready_model[3]
 
@@ -183,11 +183,11 @@ def plot_figure_latency(data):
                     error_kw={'capsize':2, 'elinewidth':1},linewidth=0.5,
                     edgecolor='black', color='tab:orange')
 
-    # rects3 = ax.bar(x , mps, width/n, label='MPS', 
-    #                 yerr=mps_yerr,
-    #                 error_kw={'capsize':2, 'elinewidth':1},linewidth=0.5,
-    #                 edgecolor='black',color='tab:green'
-    #             )
+    rects3 = ax.bar(x , mps, width/n, label='MPS', 
+                    yerr=mps_yerr,
+                    error_kw={'capsize':2, 'elinewidth':1},linewidth=0.5,
+                    edgecolor='black',color='tab:green'
+                )
 
     # upper part
     rects1 = ax.bar(x - width/n, pipeswitch, width/n, label=pipeswitch, 
@@ -212,10 +212,10 @@ def plot_figure_latency(data):
                     error_kw={'capsize':2, 'elinewidth':1},linewidth=0.5,
                     edgecolor='black', color='tab:orange')
 
-    # rects2_3 = ax2.bar(x , mps, width/n, label='MPS', 
-    #                 yerr=mps_yerr,
-    #                 error_kw={'capsize':2, 'elinewidth':1}, linewidth=0.5,
-    #                 edgecolor='black', color='tab:green')
+    rects2_3 = ax2.bar(x , mps, width/n, label='MPS', 
+                    yerr=mps_yerr,
+                    error_kw={'capsize':2, 'elinewidth':1}, linewidth=0.5,
+                    edgecolor='black', color='tab:green')
 
     rects2_1 = ax2.bar(x - width/n, pipeswitch, width/n, label='PipeSwitch', 
                     yerr=pipeswitch_yerr,
@@ -259,8 +259,8 @@ def plot_figure_latency(data):
     # ax.set_title('End to End Latency: vs Simple Transmission (V100)')
     ax.set_xticks(x)
     ax.set_xticklabels(intervals)
-    # ax.legend([rects1, rects3, rects2], ['PipeSwitch', 'MPS', 'Stop-and-start'],
-    ax.legend([rects1, rects2], ['PipeSwitch', 'Stop-and-start'],
+    ax.legend([rects1, rects3, rects2], ['PipeSwitch', 'MPS', 'Stop-and-start'],
+    # ax.legend([rects1, rects2], ['PipeSwitch', 'Stop-and-start'],
         frameon=False, ncol=2, loc='upper left',
             bbox_to_anchor=(0.0, 0.8, 0.5, 0.5),
             prop={'size': font_size-1})
