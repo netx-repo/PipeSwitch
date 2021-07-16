@@ -8,8 +8,10 @@ OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
     'pipeswitch', 
-    'stop_next', 
-    'kill_restart'
+    'no_memory_management', 
+    'no_ipc_optimization',
+    'no_pin',
+    'unified_memory'
 ]
 
 models = [
@@ -23,10 +25,10 @@ def collect_data():
     for system in systems:
         data[system] = {}
         for model in models:
-            print ('Plot figure 9: %s, %s' % (system, model))
+            print ('Plot figure 8: %s, %s' % (system, model))
 
             # Run the experiment
-            result = subprocess.run(['bash', 'scripts/figures/figure9/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
+            result = subprocess.run(['bash', 'scripts/figures/figure8/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
 
             # Get output
             output = result.stdout.decode('utf-8')
@@ -63,7 +65,7 @@ def process_data(data):
 
 def plot_figure(data):
     # sys_name = "PipeSwitch"
-    # file_name = "output/figure9.pdf"
+    # file_name = "output/figure8.pdf"
 
     # models = [
     #     "ResNet152", 
