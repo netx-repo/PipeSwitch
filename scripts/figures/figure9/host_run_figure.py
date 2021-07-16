@@ -62,110 +62,128 @@ def process_data(data):
     return pipeswitch, stop_next, kill_restart
 
 def plot_figure(data):
-    # sys_name = "PipeSwitch"
-    # file_name = "output/figure9.pdf"
+    
+    file_name = "Eval_component_switching_v100.pdf"
+    sys_name = "PipeSwitch"
 
-    # models = [
-    #     "ResNet152", 
-    #     "Inception_v3", 
-    #     # "Bert_base"
-    # ]
-    # # ready_model = [33.260075, 30.04206, 48.017385]
-    # # pipeswitch = [39.275564, 35.448869, 58.291377]
-    # # mps = [340.283585, 262.294412, 252.533078]
-    # # kill_restart = [6508.667618, 7566.112161, 6419.338626]
-    # ready_model, pipeswitch, mps, kill_restart = data
+    models = ["ResNet152", "Inception_v3", "Bert_base"]
+    our_sys = [39.275564, 35.448869, 58.291377]
+    simple_switch = [214.662004, 125.618585, 215.096629]
+    # mps = [234.662004, 145.618585, 245.096629]
+    kill_restart = [6508.667618, 7566.112161, 6419.338626]
 
-    # x = np.arange(len(models))
-    # width = 0.8
-    # n = 4
+    x = np.arange(len(models))
+    width = 0.5
+    n = 3
 
-    # # setup font size
-    # font_size = 18
-    # plt.rc('font',**{'size': font_size, 'family': 'Arial' })
-    # plt.rc('pdf',fonttype = 42)
+    # setup font size
+    font_size = 18
+    plt.rc('font',**{'size': font_size, 'family': 'Arial' })
+    plt.rc('pdf',fonttype = 42)
 
-    # # fig, ax = plt.subplots()
-    # fig, (ax, ax2) = plt.subplots(2, 1, sharex=True, figsize=(8, 3.69),
-    #                             gridspec_kw={'height_ratios': [1, 2]})
+    # fig, ax = plt.subplots()
+    fig, (ax, ax2) = plt.subplots(2, 1, sharex=True, 
+                                figsize=(8, 3.69),
+                                gridspec_kw={'height_ratios': [1, 2]})
+    plt.subplots_adjust(hspace=0.15)
 
-    # plt.subplots_adjust(hspace=0.15)
+    # upper part
+    rects1 = ax.bar(x - width/n, our_sys, width/n, label=sys_name, 
+                    edgecolor='black', linewidth=0.5,
+                    )
 
-    # # upper part
-    # rects1 = ax.bar(x - 1 * width/n, ready_model, width/n, label='Ready model', 
-    #                 edgecolor='black', linewidth=0.5, color="k"
-    #                 )
+    rects3 = ax.bar(x , simple_switch, width/n, label='One process', 
+                    edgecolor='black', linewidth=0.5,)
+    rects2 = ax.bar(x + width/n, kill_restart, width/n, label='Two processes', 
+                    edgecolor='black', linewidth=0.5,)
 
-    # rects4 = ax.bar(x , pipeswitch, width/n, label=sys_name,
+    # rects4 = ax.bar(x , our_sys, width/n, label="NeuroLambda",
     #                 linewidth=0.5,
-    #                 edgecolor='black', color="tab:blue")
+    #                 edgecolor='black')
 
-    # # rects5 = ax.bar(x , unified_memory, width/n, label="Unified Memory",
-    # #                 linewidth=0.5,
-    # #                 edgecolor='black')
+    # bottom part
+    rects2_1 = ax2.bar(x - width/n, our_sys, width/n, label=sys_name, 
+                    edgecolor='black', linewidth=0.5,
+                    )
 
-    # rects3 = ax.bar(x + width/n, mps, width/n, label='MPS', 
-    #                 edgecolor='black', linewidth=0.5, color="tab:green")
+    rects2_3 = ax2.bar(x , simple_switch, width/n, label='One process', 
+                    linewidth=0.5,
+                    edgecolor='black')
+    rects2_2 = ax2.bar(x + width/n, kill_restart, width/n, label='Two processes', 
+                    edgecolor='black', linewidth=0.5,)
 
-    # rects2 = ax.bar(x + 2 * width/n, kill_restart, width/n, label='Stop-and-start', 
-    #                 edgecolor='black', linewidth=0.5, color="tab:orange")
-
-    # # bottom part
-
-    # rects2_1 = ax2.bar(x - width/n, ready_model, width/n, label='Ready model', 
-    #                 edgecolor='black', linewidth=0.5, color='k'
-    #                 )
-    # rects2_4 = ax2.bar(x , pipeswitch, width/n, label=sys_name,
+    # rects2_4 = ax2.bar(x , our_sys, width/n, label="NeuroLambda",
     #                 linewidth=0.5,
-    #                 edgecolor='black', color="tab:blue")
+    #                 edgecolor='black')
 
-    # # rects2_5 = ax2.bar(x, unified_memory, width/n, label="Unified Memory",
-    # #                 linewidth=0.5,
-    # #                 edgecolor='black')
+    ax.set_ylim(6000, 9000)
+    ax2.set_ylim(0, 250)
 
-    # rects2_3 = ax2.bar(x + width/n, mps, width/n, label='MPS', 
-    #                 linewidth=0.5,
-    #                 edgecolor='black', color="tab:green")
+    # hide the spines between ax and ax2
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax2.spines['right'].set_visible(False)
 
-    # rects2_2 = ax2.bar(x + 2 * width/n, kill_restart, width/n, label='Stop-and-start', 
-    #                 edgecolor='black', linewidth=0.5, color="tab:orange")
+    ax.tick_params(bottom=False)  # don't put tick labels at the top
+    ax2.xaxis.tick_bottom()
 
-    # ax.set_ylim(6000, 10000)
-    # ax2.set_ylim(0, 400)
+    d = .015  # how big to make the diagonal lines in axes coordinates
+    # arguments to pass to plot, just so we don't keep repeating them
+    kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+    ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+    # ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
 
-    # # hide the spines between ax and ax2
-    # ax.spines['bottom'].set_visible(False)
-    # ax.spines['top'].set_visible(False)
-    # ax.spines['right'].set_visible(False)
-    # ax2.spines['top'].set_visible(False)
-    # ax2.spines['right'].set_visible(False)
+    kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
+    ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+    # ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
 
-    # ax.tick_params(bottom=False)  # don't put tick labels at the top
-    # ax2.xaxis.tick_bottom()
+    ax.yaxis.set_label_coords(-0.12, -0.6)
+    ax.set_ylabel('Latency (ms)')
+    # ax.set_title('End to End Latency: vs Simple Transmission (V100)')
+    ax.set_xticks(x)
+    ax.set_xticklabels(models)
+    ax.legend(frameon=False, ncol=2, loc='upper left',
+            bbox_to_anchor=(0.0, 1.1),
+            prop={'size': font_size-1})
 
-    # d = .015  # how big to make the diagonal lines in axes coordinates
-    # # arguments to pass to plot, just so we don't keep repeating them
-    # kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
-    # ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-    # # ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+    # # fig.tight_layout()
+    # bar_size = 23
+    # ax.text(0.09, 5700, "/",rotation=-55, fontdict={'family': 'serif',
+    #                                     'color':  'black',
+    #                                     'weight': 'normal',
+    #                                     'size': bar_size,
+    #                                     })
+    # ax2.text(0.09, 230, "/",rotation=-55, fontdict={'family': 'serif',
+    #                                     'color':  'black',
+    #                                     'weight': 'normal',
+    #                                     'size': bar_size,
+    #                                     })
+    # ax.text(1.09, 5700, "/",rotation=-55, fontdict={'family': 'serif',
+    #                                     'color':  'black',
+    #                                     'weight': 'normal',
+    #                                     'size': bar_size,
+    #                                     })
+    # ax2.text(1.09, 230, "/",rotation=-55, fontdict={'family': 'serif',
+    #                                     'color':  'black',
+    #                                     'weight': 'normal',
+    #                                     'size': bar_size,
+    #                                     })
 
-    # kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
-    # ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-    # # ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+    # ax.text(2.09, 5700, "/",rotation=-55, fontdict={'family': 'serif',
+    #                                     'color':  'black',
+    #                                     'weight': 'normal',
+    #                                     'size': bar_size,
+    #                                     })
+    # ax2.text(2.09, 230, "/",rotation=-55, fontdict={'family': 'serif',
+    #                                     'color':  'black',
+    #                                     'weight': 'normal',
+    #                                     'size': bar_size,
+    #                                     })
 
-    # ax.yaxis.set_label_coords(-0.12, -0.6)
-    # ax.set_ylabel('Latency (ms)')
-    # # ax.set_title('End to End Latency: vs Simple Transmission (V100)')
-    # ax.set_xticks(x)
-    # ax.set_xticklabels(models)
-    # ax.legend(
-    #     frameon=False, ncol=2,
-    #         loc='upper left', bbox_to_anchor=(0.0, 0.8, 0.5, 0.5),
-    #         prop={'size': font_size-1})
-
-    # # plt.show()
-    # plt.savefig(file_name, format="pdf")
-    return None
+    # plt.show()
+    plt.savefig(file_name, format="pdf")
 
 def main():
     # Collect data with experiments

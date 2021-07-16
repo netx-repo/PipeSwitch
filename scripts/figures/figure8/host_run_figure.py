@@ -64,110 +64,79 @@ def process_data(data):
     return pipeswitch, stop_next, kill_restart
 
 def plot_figure(data):
-    # sys_name = "PipeSwitch"
-    # file_name = "output/figure8.pdf"
+    %matplotlib inline
+    import matplotlib.pyplot as plt
+    import palettable
 
-    # models = [
-    #     "ResNet152", 
-    #     "Inception_v3", 
-    #     # "Bert_base"
-    # ]
-    # # ready_model = [33.260075, 30.04206, 48.017385]
-    # # pipeswitch = [39.275564, 35.448869, 58.291377]
-    # # mps = [340.283585, 262.294412, 252.533078]
-    # # kill_restart = [6508.667618, 7566.112161, 6419.338626]
-    # ready_model, pipeswitch, mps, kill_restart = data
+    # Component - Memory
+    # Latency v.s. Method
+    file_label = 'component_memory_v100'
 
-    # x = np.arange(len(models))
-    # width = 0.8
-    # n = 4
+    # data
+    y_sys = [39.275564, 35.448869, 58.291377]
+    y_malloc = [62.69336, 46.950152, 76.815955]
+    y_ipc = [87.570691, 58.538342, 94.64469]
+    y_no_pin = [53.502496, 43.420611, 62.364679]
+    y_um = [184.045815, 223.192644, 229.593801]
 
-    # # setup font size
-    # font_size = 18
-    # plt.rc('font',**{'size': font_size, 'family': 'Arial' })
-    # plt.rc('pdf',fonttype = 42)
 
-    # # fig, ax = plt.subplots()
-    # fig, (ax, ax2) = plt.subplots(2, 1, sharex=True, figsize=(8, 3.69),
-    #                             gridspec_kw={'height_ratios': [1, 2]})
+    # labels for x
+    x_label = 'Models'
+    width = 0.15
+    index_sys = [i + 0.7 for i in range(3)]
+    index_malloc = [i + 0.85 for i in range(3)]
+    index_ipc = [i + 1.0 for i in range(3)]
+    index_no_pin = [i + 1.15 for i in range(3)]
+    index_um = [i + 1.3 for i in range(3)]
 
-    # plt.subplots_adjust(hspace=0.15)
+    x_ticks = [i + 1.0 for i in range(3)]
+    x_ticklabels = ["ResNet152", "Inception_v3", "Bert_base"]
 
-    # # upper part
-    # rects1 = ax.bar(x - 1 * width/n, ready_model, width/n, label='Ready model', 
-    #                 edgecolor='black', linewidth=0.5, color="k"
-    #                 )
+    # labels for y
+    y_label = 'Latency (ms)'
+    y_ticks = [i * 100 for i in range(5)]
+    y_ticklabels = [str(i * 100) for i in range(5)]
 
-    # rects4 = ax.bar(x , pipeswitch, width/n, label=sys_name,
-    #                 linewidth=0.5,
-    #                 edgecolor='black', color="tab:blue")
+    font_size = 23
+    plt.rc('font',**{'size': font_size, 'family': 'Arial' })
+    plt.rc('pdf',fonttype = 42)
+    fig, ax = plt.subplots(figsize=(13, 6))
 
-    # # rects5 = ax.bar(x , unified_memory, width/n, label="Unified Memory",
-    # #                 linewidth=0.5,
-    # #                 edgecolor='black')
+    # Plot bars
+    b1 = plt.bar(index_sys, y_sys, width, zorder=3, clip_on=False, edgecolor='black')
+    b2 = plt.bar(index_malloc, y_malloc, width, zorder=3, clip_on=False, edgecolor='black')
+    b3 = plt.bar(index_ipc, y_ipc, width, zorder=3, clip_on=False, edgecolor='black')
+    b4 = plt.bar(index_no_pin, y_no_pin, width, zorder=3, clip_on=False, edgecolor='black')
+    b5 = plt.bar(index_um, y_um, width, zorder=3, clip_on=False, edgecolor='black')
+    plt.legend((b1, b2, b3, b4, b5), 
+            (sysname, 'No memory management', 'No IPC optimization', 'No pin memory', 'CUDA unified memory'), 
+            loc='upper left',ncol=2, frameon=False, prop={'size':font_size})
 
-    # rects3 = ax.bar(x + width/n, mps, width/n, label='MPS', 
-    #                 edgecolor='black', linewidth=0.5, color="tab:green")
+    ax.tick_params(labelsize=font_size, pad=10)
 
-    # rects2 = ax.bar(x + 2 * width/n, kill_restart, width/n, label='Stop-and-start', 
-    #                 edgecolor='black', linewidth=0.5, color="tab:orange")
+    # Plot x labels
+    # ax.set_xlabel(x_label)
+    # ax.set_xlim(left=0, right=4)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.set_xticks(x_ticks)
+    ax.set_xticklabels(x_ticklabels)
 
-    # # bottom part
+    # Plot y labels
+    ax.set_ylabel(y_label)
+    ax.set_ylim(bottom=0, top=400)
+    ax.yaxis.set_ticks_position('left')
+    ax.set_yticks(y_ticks)
+    ax.set_yticklabels(y_ticklabels)
 
-    # rects2_1 = ax2.bar(x - width/n, ready_model, width/n, label='Ready model', 
-    #                 edgecolor='black', linewidth=0.5, color='k'
-    #                 )
-    # rects2_4 = ax2.bar(x , pipeswitch, width/n, label=sys_name,
-    #                 linewidth=0.5,
-    #                 edgecolor='black', color="tab:blue")
 
-    # # rects2_5 = ax2.bar(x, unified_memory, width/n, label="Unified Memory",
-    # #                 linewidth=0.5,
-    # #                 edgecolor='black')
+    ax.get_yaxis().set_tick_params(direction='in')
+    ax.get_xaxis().set_tick_params(direction='in')
 
-    # rects2_3 = ax2.bar(x + width/n, mps, width/n, label='MPS', 
-    #                 linewidth=0.5,
-    #                 edgecolor='black', color="tab:green")
+    ax.spines['top'].set_color('none')
+    ax.spines['right'].set_color('none')
 
-    # rects2_2 = ax2.bar(x + 2 * width/n, kill_restart, width/n, label='Stop-and-start', 
-    #                 edgecolor='black', linewidth=0.5, color="tab:orange")
 
-    # ax.set_ylim(6000, 10000)
-    # ax2.set_ylim(0, 400)
-
-    # # hide the spines between ax and ax2
-    # ax.spines['bottom'].set_visible(False)
-    # ax.spines['top'].set_visible(False)
-    # ax.spines['right'].set_visible(False)
-    # ax2.spines['top'].set_visible(False)
-    # ax2.spines['right'].set_visible(False)
-
-    # ax.tick_params(bottom=False)  # don't put tick labels at the top
-    # ax2.xaxis.tick_bottom()
-
-    # d = .015  # how big to make the diagonal lines in axes coordinates
-    # # arguments to pass to plot, just so we don't keep repeating them
-    # kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
-    # ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-    # # ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
-
-    # kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
-    # ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-    # # ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
-
-    # ax.yaxis.set_label_coords(-0.12, -0.6)
-    # ax.set_ylabel('Latency (ms)')
-    # # ax.set_title('End to End Latency: vs Simple Transmission (V100)')
-    # ax.set_xticks(x)
-    # ax.set_xticklabels(models)
-    # ax.legend(
-    #     frameon=False, ncol=2,
-    #         loc='upper left', bbox_to_anchor=(0.0, 0.8, 0.5, 0.5),
-    #         prop={'size': font_size-1})
-
-    # # plt.show()
-    # plt.savefig(file_name, format="pdf")
-    return None
+    plt.savefig('Eval_%s.pdf' % (file_label), bbox_inches='tight', transparent = True)
 
 def main():
     # Collect data with experiments

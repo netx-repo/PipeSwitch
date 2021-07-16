@@ -48,7 +48,53 @@ def process_data(data):
     return None
 
 def plot_figure(data):
-    pass
+    
+    file_name = "Eval_component_pipeline_v100.pdf"
+    sys_name = "PipeSwitch"
+
+    models = ["ResNet152", "Inception_v3", "Bert_base"]
+    our_sys = [39.275564, 35.448869, 58.291377]
+    per_layer_pipe = [68.122649, 50.079757, 74.086535]
+    one_batch_pipe = [57.584548, 39.302582, 87.974453]
+    per_layer_nopipe = [77.521926, 52.8117, 91.598785]
+
+    x = np.arange(len(models))
+    width = 0.4
+
+    # setup font size
+    font_size = 18
+    plt.rc('font',**{'size': font_size, 'family': 'Arial' })
+    plt.rc('pdf',fonttype = 42)
+
+    fig, ax = plt.subplots(figsize=(8, 3.69))
+    n = 4
+
+    rects1 = ax.bar(x - 2 * width/n, our_sys, width/n, 
+                    edgecolor='black', linewidth=0.5, label=sys_name)
+    rects2 = ax.bar(x - width/n, per_layer_pipe, width/n,
+                    edgecolor='black', linewidth=0.5,
+                    label='Per-layer pipeline')
+    rects3 = ax.bar(x , one_batch_pipe, width/n, 
+                    edgecolor='black', linewidth=0.5,
+                    label='Grouped transmission')
+    rects4 = ax.bar(x + width/n, per_layer_nopipe, width/n,
+                    edgecolor='black', linewidth=0.5, label="No optimization")
+    ax.set_ylim((0,100))
+    ax.set_ylabel('Latency (ms)')
+    # ax.set_title('End to End Latency: vs Simple Transmission (V100)')
+    ax.set_xticks(x)
+    ax.set_xticklabels(models)
+    ax.legend(frameon=False, ncol=1, loc='upper center', 
+            bbox_to_anchor=(0.3, 0.6, 0.5, 0.5),
+            prop={'size': font_size-1})
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    # fig.tight_layout()
+
+    # plt.show()
+    plt.savefig(file_name, format="pdf")
 
 def main():
     # Collect data with experiments
