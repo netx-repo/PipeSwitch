@@ -21,64 +21,70 @@ models = [
 ]
 
 def collect_data():
+    # data = {}
+    # for system in systems:
+    #     data[system] = {}
+    #     for model in models:
+    #         print ('Plot figure 8: %s, %s' % (system, model))
+
+    #         # Run the experiment
+    #         result = subprocess.run(['bash', 'scripts/figures/figure8/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
+
+    #         # Get output
+    #         output = result.stdout.decode('utf-8')
+    #         lines = output.split('\n')
+    #         for line in lines:
+    #             line = line.strip()
+    #             if OUTPUT_FLAG in line:
+    #                 parts = line.split(',')
+    #                 latency = float(parts[1].strip())
+    #                 stdev = float(parts[2].strip())
+    #                 count = int(parts[3])
+    #                 data[system][model] = latency
+    #                 break
+
     data = {}
     for system in systems:
         data[system] = {}
         for model in models:
-            print ('Plot figure 8: %s, %s' % (system, model))
-
-            # Run the experiment
-            result = subprocess.run(['bash', 'scripts/figures/figure8/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
-
-            # Get output
-            output = result.stdout.decode('utf-8')
-            lines = output.split('\n')
-            for line in lines:
-                line = line.strip()
-                if OUTPUT_FLAG in line:
-                    parts = line.split(',')
-                    latency = float(parts[1].strip())
-                    stdev = float(parts[2].strip())
-                    count = int(parts[3])
-                    data[system][model] = latency
-                    break
+            data[system][model] = 100
     
     return data
 
 def process_data(data):
-    pipeswitch = [
+    y_sys = [
         data['pipeswitch']['resnet152'], 
         data['pipeswitch']['inception_v3'], 
         data['pipeswitch']['bert_base']
     ]
-    stop_next = [
-        data['stop_next']['resnet152'], 
-        data['stop_next']['inception_v3'], 
-        data['stop_next']['bert_base']
+    y_malloc = [
+        data['no_memory_management']['resnet152'], 
+        data['no_memory_management']['inception_v3'], 
+        data['no_memory_management']['bert_base']
     ]
-    kill_restart = [
-        data['kill_restart']['resnet152'], 
-        data['kill_restart']['inception_v3'], 
-        data['kill_restart']['bert_base']
+    y_ipc = [
+        data['no_ipc_optimization']['resnet152'], 
+        data['no_ipc_optimization']['inception_v3'], 
+        data['no_ipc_optimization']['bert_base']
     ]
-    return pipeswitch, stop_next, kill_restart
+    y_no_pin = [
+        data['no_pin']['resnet152'], 
+        data['no_pin']['inception_v3'], 
+        data['no_pin']['bert_base']
+    ]
+    y_um = [
+        data['unified_memory']['resnet152'], 
+        data['unified_memory']['inception_v3'], 
+        data['unified_memory']['bert_base']
+    ]
+    return y_sys, y_malloc, y_ipc, y_no_pin, y_um
 
 def plot_figure(data):
-    %matplotlib inline
-    import matplotlib.pyplot as plt
-    import palettable
-
-    # Component - Memory
-    # Latency v.s. Method
-    file_label = 'component_memory_v100'
+    sysname = 'PipeSwitch'
+    file_name = 'output/figure8.pdf'
 
     # data
-    y_sys = [39.275564, 35.448869, 58.291377]
-    y_malloc = [62.69336, 46.950152, 76.815955]
-    y_ipc = [87.570691, 58.538342, 94.64469]
-    y_no_pin = [53.502496, 43.420611, 62.364679]
-    y_um = [184.045815, 223.192644, 229.593801]
-
+    y_sys, y_malloc, y_ipc, y_no_pin, y_um = data
 
     # labels for x
     x_label = 'Models'
@@ -136,21 +142,17 @@ def plot_figure(data):
     ax.spines['right'].set_color('none')
 
 
-    plt.savefig('Eval_%s.pdf' % (file_label), bbox_inches='tight', transparent = True)
+    plt.savefig(file_name, bbox_inches='tight', transparent = True)
 
 def main():
     # Collect data with experiments
     data = collect_data()
-    # print (data)
-    # return
 
     # Process data
     data = process_data(data)
 
     # Plot the figure
     plot_figure(data)
-    
-
 
 if __name__ == '__main__':
     main()

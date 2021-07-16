@@ -19,28 +19,32 @@ models = [
 ]
 
 def collect_data():
+    # data = {}
+    # for system in systems:
+    #     data[system] = {}
+    #     for model in models:
+    #         print ('Plot figure 9: %s, %s' % (system, model))
+
+    #         # Run the experiment
+    #         result = subprocess.run(['bash', 'scripts/figures/figure9/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
+
+    #         # Get output
+    #         output = result.stdout.decode('utf-8')
+    #         lines = output.split('\n')
+    #         for line in lines:
+    #             line = line.strip()
+    #             if OUTPUT_FLAG in line:
+    #                 parts = line.split(',')
+    #                 latency = float(parts[1].strip())
+    #                 stdev = float(parts[2].strip())
+    #                 count = int(parts[3])
+    #                 data[system][model] = latency
+    #                 break
     data = {}
     for system in systems:
         data[system] = {}
         for model in models:
-            print ('Plot figure 9: %s, %s' % (system, model))
-
-            # Run the experiment
-            result = subprocess.run(['bash', 'scripts/figures/figure9/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
-
-            # Get output
-            output = result.stdout.decode('utf-8')
-            lines = output.split('\n')
-            for line in lines:
-                line = line.strip()
-                if OUTPUT_FLAG in line:
-                    parts = line.split(',')
-                    latency = float(parts[1].strip())
-                    stdev = float(parts[2].strip())
-                    count = int(parts[3])
-                    data[system][model] = latency
-                    break
-    
+             data[system][model] = 100
     return data
 
 def process_data(data):
@@ -63,14 +67,11 @@ def process_data(data):
 
 def plot_figure(data):
     
-    file_name = "Eval_component_switching_v100.pdf"
+    file_name = "output/figure9.pdf"
     sys_name = "PipeSwitch"
 
     models = ["ResNet152", "Inception_v3", "Bert_base"]
-    our_sys = [39.275564, 35.448869, 58.291377]
-    simple_switch = [214.662004, 125.618585, 215.096629]
-    # mps = [234.662004, 145.618585, 245.096629]
-    kill_restart = [6508.667618, 7566.112161, 6419.338626]
+    our_sys, simple_switch, kill_restart = data
 
     x = np.arange(len(models))
     width = 0.5
@@ -97,10 +98,6 @@ def plot_figure(data):
     rects2 = ax.bar(x + width/n, kill_restart, width/n, label='Two processes', 
                     edgecolor='black', linewidth=0.5,)
 
-    # rects4 = ax.bar(x , our_sys, width/n, label="NeuroLambda",
-    #                 linewidth=0.5,
-    #                 edgecolor='black')
-
     # bottom part
     rects2_1 = ax2.bar(x - width/n, our_sys, width/n, label=sys_name, 
                     edgecolor='black', linewidth=0.5,
@@ -111,10 +108,6 @@ def plot_figure(data):
                     edgecolor='black')
     rects2_2 = ax2.bar(x + width/n, kill_restart, width/n, label='Two processes', 
                     edgecolor='black', linewidth=0.5,)
-
-    # rects2_4 = ax2.bar(x , our_sys, width/n, label="NeuroLambda",
-    #                 linewidth=0.5,
-    #                 edgecolor='black')
 
     ax.set_ylim(6000, 9000)
     ax2.set_ylim(0, 250)
@@ -148,49 +141,12 @@ def plot_figure(data):
             bbox_to_anchor=(0.0, 1.1),
             prop={'size': font_size-1})
 
-    # # fig.tight_layout()
-    # bar_size = 23
-    # ax.text(0.09, 5700, "/",rotation=-55, fontdict={'family': 'serif',
-    #                                     'color':  'black',
-    #                                     'weight': 'normal',
-    #                                     'size': bar_size,
-    #                                     })
-    # ax2.text(0.09, 230, "/",rotation=-55, fontdict={'family': 'serif',
-    #                                     'color':  'black',
-    #                                     'weight': 'normal',
-    #                                     'size': bar_size,
-    #                                     })
-    # ax.text(1.09, 5700, "/",rotation=-55, fontdict={'family': 'serif',
-    #                                     'color':  'black',
-    #                                     'weight': 'normal',
-    #                                     'size': bar_size,
-    #                                     })
-    # ax2.text(1.09, 230, "/",rotation=-55, fontdict={'family': 'serif',
-    #                                     'color':  'black',
-    #                                     'weight': 'normal',
-    #                                     'size': bar_size,
-    #                                     })
-
-    # ax.text(2.09, 5700, "/",rotation=-55, fontdict={'family': 'serif',
-    #                                     'color':  'black',
-    #                                     'weight': 'normal',
-    #                                     'size': bar_size,
-    #                                     })
-    # ax2.text(2.09, 230, "/",rotation=-55, fontdict={'family': 'serif',
-    #                                     'color':  'black',
-    #                                     'weight': 'normal',
-    #                                     'size': bar_size,
-    #                                     })
-
     # plt.show()
     plt.savefig(file_name, format="pdf")
 
 def main():
     # Collect data with experiments
     data = collect_data()
-    # print (data)
-    # return
-
     # Process data
     data = process_data(data)
 

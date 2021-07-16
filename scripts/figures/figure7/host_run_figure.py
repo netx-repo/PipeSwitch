@@ -8,55 +8,76 @@ OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
     'pipeswitch',
-    # 'per_layer',
-    # 'grouped',
-    # 'per_layer_no_pipeline'
+    'per_layer',
+    'grouped',
+    'per_layer_no_pipeline'
 ]
 
 models = [
     'resnet152',
-    # 'inception_v3',
-    # 'bert_base',
+    'inception_v3',
+    'bert_base',
 ]
 
 def collect_data():
+    # data = {}
+    # for system in systems:
+    #     data[system] = {}
+    #     for model in models:
+    #         print ('Plot figure 7: %s, %s' % (system, model))
+
+    #         # Run the experiment
+    #         result = subprocess.run(['bash', 'scripts/figures/figure7/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
+
+    #         # Get output
+    #         output = result.stdout.decode('utf-8')
+    #         lines = output.split('\n')
+    #         for line in lines:
+    #             line = line.strip()
+    #             if OUTPUT_FLAG in line:
+    #                 parts = line.split(',')
+    #                 latency = float(parts[1].strip())
+    #                 stdev = float(parts[2].strip())
+    #                 count = int(parts[3])
+    #                 data[system][model] = latency
+    #                 break
     data = {}
     for system in systems:
         data[system] = {}
         for model in models:
-            print ('Plot figure 7: %s, %s' % (system, model))
+            data[system][model] = 100
 
-            # Run the experiment
-            result = subprocess.run(['bash', 'scripts/figures/figure7/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
-
-            # Get output
-            output = result.stdout.decode('utf-8')
-            lines = output.split('\n')
-            for line in lines:
-                line = line.strip()
-                if OUTPUT_FLAG in line:
-                    parts = line.split(',')
-                    latency = float(parts[1].strip())
-                    stdev = float(parts[2].strip())
-                    count = int(parts[3])
-                    data[system][model] = latency
-                    break
-    
     return data
 
 def process_data(data):
-    return None
+    pipeswitch = [
+        data['pipeswitch']['resnet152'], 
+        data['pipeswitch']['inception_v3'], 
+        data['pipeswitch']['bert_base']
+    ]
+    per_layer = [
+        data['per_layer']['resnet152'], 
+        data['per_layer']['inception_v3'], 
+        data['per_layer']['bert_base']
+    ]
+    grouped = [
+        data['grouped']['resnet152'], 
+        data['grouped']['inception_v3'], 
+        data['grouped']['bert_base']
+    ]
+    per_layer_no_pipeline = [
+        data['per_layer_no_pipeline']['resnet152'], 
+        data['per_layer_no_pipeline']['inception_v3'], 
+        data['per_layer_no_pipeline']['bert_base']
+    ]
+    return pipeswitch, per_layer, grouped, per_layer_no_pipeline
 
 def plot_figure(data):
-    
-    file_name = "Eval_component_pipeline_v100.pdf"
+    file_name = "output/figure7.pdf"
     sys_name = "PipeSwitch"
 
     models = ["ResNet152", "Inception_v3", "Bert_base"]
-    our_sys = [39.275564, 35.448869, 58.291377]
-    per_layer_pipe = [68.122649, 50.079757, 74.086535]
-    one_batch_pipe = [57.584548, 39.302582, 87.974453]
-    per_layer_nopipe = [77.521926, 52.8117, 91.598785]
+    our_sys, per_layer_pipe, one_batch_pipe, per_layer_nopipe = data
 
     x = np.arange(len(models))
     width = 0.4
@@ -99,15 +120,12 @@ def plot_figure(data):
 def main():
     # Collect data with experiments
     data = collect_data()
-    # print (data)
-    # return
 
     # Process data
     data = process_data(data)
 
     # Plot the figure
     plot_figure(data)
-    
  
 
 if __name__ == '__main__':

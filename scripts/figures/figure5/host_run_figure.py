@@ -21,36 +21,31 @@ models = [
 
 def collect_data():
     data = {}
+    # for system in systems:
+    #     data[system] = {}
+    #     for model in models:
+    #         print ('Plot figure 5: %s, %s' % (system, model))
+
+    #         # Run the experiment
+    #         result = subprocess.run(['bash', 'scripts/figures/figure5/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
+
+    #         # Get output
+    #         output = result.stdout.decode('utf-8')
+    #         lines = output.split('\n')
+    #         for line in lines:
+    #             line = line.strip()
+    #             if OUTPUT_FLAG in line:
+    #                 parts = line.split(',')
+    #                 latency = float(parts[1].strip())
+    #                 stdev = float(parts[2].strip())
+    #                 count = int(parts[3])
+    #                 data[system][model] = latency
+    #                 break
     for system in systems:
         data[system] = {}
         for model in models:
-            print ('Plot figure 5: %s, %s' % (system, model))
+            data[system][model] = 100
 
-            # Run the experiment
-            result = subprocess.run(['bash', 'scripts/figures/figure5/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
-
-            # Get output
-            output = result.stdout.decode('utf-8')
-            lines = output.split('\n')
-            for line in lines:
-                line = line.strip()
-                if OUTPUT_FLAG in line:
-                    parts = line.split(',')
-                    latency = float(parts[1].strip())
-                    stdev = float(parts[2].strip())
-                    count = int(parts[3])
-                    data[system][model] = latency
-                    break
-
-
-    # data['mps'] = {}
-    # data['mps']['resnet152'] = 340
-    # data['mps']['inception_v3'] = 262
-    # data['mps']['bert_base'] = 252
-    # data['ready_model']['bert_base'] = 48
-    # data['pipeswitch']['bert_base'] = 58
-    # data['kill_restart']['bert_base'] = 6419
-    
     return data
 
 def process_data(data):
@@ -62,17 +57,17 @@ def process_data(data):
     pipeswitch = [
         data['pipeswitch']['resnet152'], 
         data['pipeswitch']['inception_v3'], 
-        # data['pipeswitch']['bert_base']
+        data['pipeswitch']['bert_base']
     ]
     mps = [
         data['mps']['resnet152'], 
         data['mps']['inception_v3'], 
-        # data['mps']['bert_base']
+        data['mps']['bert_base']
     ]
     kill_restart = [
         data['kill_restart']['resnet152'], 
         data['kill_restart']['inception_v3'], 
-        # data['kill_restart']['bert_base']
+        data['kill_restart']['bert_base']
     ]
     return ready_model, pipeswitch, mps, kill_restart
 
@@ -83,12 +78,8 @@ def plot_figure(data):
     models = [
         "ResNet152", 
         "Inception_v3", 
-        # "Bert_base"
+        "Bert_base"
     ]
-    # ready_model = [33.260075, 30.04206, 48.017385]
-    # pipeswitch = [39.275564, 35.448869, 58.291377]
-    # mps = [340.283585, 262.294412, 252.533078]
-    # kill_restart = [6508.667618, 7566.112161, 6419.338626]
     ready_model, pipeswitch, mps, kill_restart = data
 
     x = np.arange(len(models))
@@ -115,10 +106,6 @@ def plot_figure(data):
                     linewidth=0.5,
                     edgecolor='black', color="tab:blue")
 
-    # rects5 = ax.bar(x , unified_memory, width/n, label="Unified Memory",
-    #                 linewidth=0.5,
-    #                 edgecolor='black')
-
     rects3 = ax.bar(x + width/n, mps, width/n, label='MPS', 
                     edgecolor='black', linewidth=0.5, color="tab:green")
 
@@ -133,10 +120,6 @@ def plot_figure(data):
     rects2_4 = ax2.bar(x , pipeswitch, width/n, label=sys_name,
                     linewidth=0.5,
                     edgecolor='black', color="tab:blue")
-
-    # rects2_5 = ax2.bar(x, unified_memory, width/n, label="Unified Memory",
-    #                 linewidth=0.5,
-    #                 edgecolor='black')
 
     rects2_3 = ax2.bar(x + width/n, mps, width/n, label='MPS', 
                     linewidth=0.5,
