@@ -6,7 +6,7 @@ from util.util import timestamp
 
 
 def import_model():
-    model = torch.hub.load('huggingface/pytorch-transformers', 'model',
+    model = torch.hub.load('huggingface/pytorch-transformers:v2,5,0', 'model',
                            'bert-base-cased')
     util.set_fullname(model, 'bert_base')
 
