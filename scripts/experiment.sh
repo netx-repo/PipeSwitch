@@ -24,8 +24,11 @@
 
 # mkdir output
 
+# Warm up servers
+bash scripts/environment/host_run_warmup.sh
+
 # PLot figure 5
-bash scripts/figures/figure5/plot_figure.sh
+# bash scripts/figures/figure5/plot_figure.sh
 
 # PLot figure 6
 # bash scripts/figures/figure6/plot_figure.sh
