@@ -11,7 +11,7 @@
 # bash scripts/environment/host_push_docker_image_base.sh
 
 # Load basic Docker image on servers
-# bash scripts/environment/host_build_docker_image_ready_model.sh
+bash scripts/environment/host_build_docker_image_ready_model.sh
 # bash scripts/environment/host_build_docker_image_pipeswitch.sh
 # bash scripts/environment/host_build_docker_image_mps.sh
 
@@ -25,7 +25,7 @@
 # mkdir output
 
 # Warm up servers
-bash scripts/environment/host_run_warmup.sh
+# bash scripts/environment/host_run_warmup.sh
 
 # PLot figure 5
 # bash scripts/figures/figure5/plot_figure.sh
