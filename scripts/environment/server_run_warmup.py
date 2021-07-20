@@ -4,7 +4,7 @@ import sys
 from scripts.common.util import RunDocker
 
 def main():
-    with RunDocker('pytorch/pytorch:1.3-cuda10.1-cudnn7-devel', 'dev') as rd:
+    with RunDocker('pipeswitch:ready_model', 'dev') as rd:
         # Start the server: ready_model
         rd.run('python PipeSwitch/scripts/environment/container_run_warmup.py')
         
