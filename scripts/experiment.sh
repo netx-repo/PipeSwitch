@@ -12,7 +12,7 @@
 
 # Load basic Docker image on servers
 # bash scripts/environment/host_build_docker_image_ready_model.sh
-bash scripts/environment/host_build_docker_image_pipeswitch.sh
+# bash scripts/environment/host_build_docker_image_pipeswitch.sh
 # bash scripts/environment/host_build_docker_image_mps.sh
 
 
@@ -25,7 +25,7 @@ bash scripts/environment/host_build_docker_image_pipeswitch.sh
 # mkdir output
 
 # PLot figure 5
-# bash scripts/figures/figure5/plot_figure.sh
+bash scripts/figures/figure5/plot_figure.sh
 
 # PLot figure 6
 # bash scripts/figures/figure6/plot_figure.sh
