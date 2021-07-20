@@ -6,6 +6,15 @@ RUN pip install --upgrade pip
 RUN pip install scipy
 RUN pip install transformers==2.5.0
 
+WORKDIR /workspace
+RUN git clone --branch dev https://github.com/baizh1994/PipeSwitch.git
+
+WORKDIR /workspace/PipeSwitch
+RUN python scripts/environment/container_run_warmup.py
+
+WORKDIR /workspace
+RUN rm -rf PipeSwitch
+
 ENV PYTHONPATH=/workspace/PipeSwitch
 
 WORKDIR /workspace
