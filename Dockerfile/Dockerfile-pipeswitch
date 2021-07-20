@@ -7,8 +7,10 @@ RUN pip install transformers==2.5.0
 WORKDIR /workspace
 RUN git clone --branch dev https://github.com/baizh1994/PipeSwitch.git
 
+ENV PYTHONPATH=/workspace/PipeSwitch
+
 WORKDIR /workspace/PipeSwitch
-RUN python scripts/environment/container_run_warmup.py
+RUN python scripts/environment/container_download_models.py
 
 WORKDIR /workspace/PipeSwitch/pytorch_plugin
 RUN bash overwrite.sh /workspace/pytorch/
@@ -19,7 +21,5 @@ RUN python setup.py install
 
 WORKDIR /workspace
 RUN rm -rf PipeSwitch
-
-ENV PYTHONPATH=/workspace/PipeSwitch
 
 WORKDIR /workspace
