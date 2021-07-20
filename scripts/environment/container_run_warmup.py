@@ -11,10 +11,10 @@ def warm_up_training():
 
 def warm_up_inference(model_name):
     # Warm up training
-    inference_name = '%s_inference' % model_name
-    data = get_data(inference_name, 8)
-    model, func = get_model(inference_name)
+    data = get_data(model_name, 8)
+    model, func = get_model(model_name)
 
+    model = model.cuda()
     data_b = data.numpy().tobytes()
     func(model, data_b)
 
