@@ -7,9 +7,9 @@ import numpy as np
 OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
-    'ready_model', 
-    'pipeswitch', 
-    'mps', 
+    # 'ready_model', 
+    # 'pipeswitch', 
+    # 'mps', 
     'kill_restart'
 ]
 
@@ -27,7 +27,10 @@ def collect_data():
             print ('Plot figure 5: %s, %s' % (system, model))
 
             # Run the experiment
+            # result = subprocess.run(['bash', 'scripts/figures/figure5/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
             result = subprocess.run(['bash', 'scripts/figures/figure5/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
+            return
+            print (result.stdout.decode('utf-8'))
 
             # Get output
             output = result.stdout.decode('utf-8')

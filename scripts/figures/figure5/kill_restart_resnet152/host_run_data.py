@@ -9,7 +9,9 @@ def main():
     server_list = import_server_list(server_list_path)
 
     with RunRemoteRepo(server_list[0], 'dev') as rrr:
+        print ('Host python start')
         rrr.run("bash ~/PipeSwitch/scripts/figures/figure5/kill_restart_resnet152/remote_run_data.sh")
+        print ('Host end start')
 
 if __name__ == '__main__':
     main()
