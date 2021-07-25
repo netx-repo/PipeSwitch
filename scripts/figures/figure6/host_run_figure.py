@@ -23,31 +23,31 @@ intervals = [
 
 def collect_data():
     data = {}
-    # for system in systems:
-    #     data[system] = {}
-    #     for interval in intervals:
-    #         print ('Plot figure 6: %s, %s' % (system, interval))
-
-    #         # Run the experiment
-    #         result = subprocess.run(['bash', 'scripts/figures/figure6/%s_%s/host_run_data.sh' % (system, interval)], stdout=subprocess.PIPE)
-
-    #         # Get output
-    #         output = result.stdout.decode('utf-8')
-    #         lines = output.split('\n')
-    #         for line in lines:
-    #             line = line.strip()
-    #             if OUTPUT_FLAG in line:
-    #                 parts = line.split(',')
-    #                 throughput  = float(parts[1].strip())
-    #                 latency_avg = float(parts[2].strip())
-    #                 latency_min = float(parts[3].strip())
-    #                 latency_max = float(parts[4].strip())
-    #                 data[system][interval] = [throughput, latency_avg, latency_min, latency_max]
-    #                 break
     for system in systems:
         data[system] = {}
         for interval in intervals:
-            data[system][interval] = [30, 100, 90, 110]
+            print ('Plot figure 6: %s, %s' % (system, interval))
+
+            # Run the experiment
+            result = subprocess.run(['bash', 'scripts/figures/figure6/%s_%s/host_run_data.sh' % (system, interval)], stdout=subprocess.PIPE)
+
+            # Get output
+            output = result.stdout.decode('utf-8')
+            lines = output.split('\n')
+            for line in lines:
+                line = line.strip()
+                if OUTPUT_FLAG in line:
+                    parts = line.split(',')
+                    throughput  = float(parts[1].strip())
+                    latency_avg = float(parts[2].strip())
+                    latency_min = float(parts[3].strip())
+                    latency_max = float(parts[4].strip())
+                    data[system][interval] = [throughput, latency_avg, latency_min, latency_max]
+                    break
+    # for system in systems:
+    #     data[system] = {}
+    #     for interval in intervals:
+    #         data[system][interval] = [30, 100, 90, 110]
     
     return data
 
