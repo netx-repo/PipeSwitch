@@ -1,5 +1,5 @@
 # Get current work dir
-WORK_DIR=$(pwd)/mps
+WORK_DIR=$(pwd)/PipeSwitch
 
 # Import global variables
 source $WORK_DIR/scripts/config/env.sh
