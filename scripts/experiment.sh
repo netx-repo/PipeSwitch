@@ -34,7 +34,7 @@
 # bash scripts/figures/figure6/plot_figure.sh
 
 # PLot figure 7
-bash scripts/figures/figure7/plot_figure.sh
+# bash scripts/figures/figure7/plot_figure.sh
 
 # PLot figure 8
 # bash scripts/figures/figure8/plot_figure.sh

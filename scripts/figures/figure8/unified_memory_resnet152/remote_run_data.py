@@ -4,7 +4,7 @@ import sys
 from scripts.common.util import RunDocker
 
 def main():
-    with RunDocker('pipeswitch:ready_model', 'figure8_no_memory_management_bert_base') as rd:
+    with RunDocker('pipeswitch:mps', 'figure8_unified_memory_resnet152') as rd:
         # Start the server: pipeswitch
         rd.run('python PipeSwitch/scripts/run_data.py')
         
