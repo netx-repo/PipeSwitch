@@ -21,33 +21,33 @@ models = [
 ]
 
 def collect_data():
-    # data = {}
-    # for system in systems:
-    #     data[system] = {}
-    #     for model in models:
-    #         print ('Plot figure 8: %s, %s' % (system, model))
-
-    #         # Run the experiment
-    #         result = subprocess.run(['bash', 'scripts/figures/figure8/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
-
-    #         # Get output
-    #         output = result.stdout.decode('utf-8')
-    #         lines = output.split('\n')
-    #         for line in lines:
-    #             line = line.strip()
-    #             if OUTPUT_FLAG in line:
-    #                 parts = line.split(',')
-    #                 latency = float(parts[1].strip())
-    #                 stdev = float(parts[2].strip())
-    #                 count = int(parts[3])
-    #                 data[system][model] = latency
-    #                 break
-
     data = {}
     for system in systems:
         data[system] = {}
         for model in models:
-            data[system][model] = 100
+            print ('Plot figure 8: %s, %s' % (system, model))
+
+            # Run the experiment
+            result = subprocess.run(['bash', 'scripts/figures/figure8/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
+
+            # Get output
+            output = result.stdout.decode('utf-8')
+            lines = output.split('\n')
+            for line in lines:
+                line = line.strip()
+                if OUTPUT_FLAG in line:
+                    parts = line.split(',')
+                    latency = float(parts[1].strip())
+                    stdev = float(parts[2].strip())
+                    count = int(parts[3])
+                    data[system][model] = latency
+                    break
+
+    # data = {}
+    # for system in systems:
+    #     data[system] = {}
+    #     for model in models:
+    #         data[system][model] = 100
     
     return data
 
