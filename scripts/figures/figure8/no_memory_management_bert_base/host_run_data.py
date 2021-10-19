@@ -9,7 +9,7 @@ def main():
     server_list = import_server_list(server_list_path)
 
     with RunRemoteRepo(server_list[0], 'dev') as rrr:
-        rrr.run("bash ~/PipeSwitch/scripts/figures/figure8/_bert_base/remote_run_data.sh")
+        rrr.run("bash ~/PipeSwitch/scripts/figures/figure8/no_memory_management_bert_base/remote_run_data.sh")
 
 if __name__ == '__main__':
     main()

@@ -40,6 +40,12 @@ bash scripts/figures/figure7/plot_figure.sh
 bash scripts/figures/figure8/plot_figure.sh
 
 # PLot figure 9
+# bash scripts/figures/figure9/plot_figure.sh
+
+# PLot figure 8
+# bash scripts/figures/figure8/plot_figure.sh
+
+# PLot figure 9
 bash scripts/figures/figure9/plot_figure.sh
 
 # ### Plot figures END ###
