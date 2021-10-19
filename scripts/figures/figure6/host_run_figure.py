@@ -232,6 +232,7 @@ def plot_figure_latency(data):
 def main():
     # Collect data with experiments
     data = collect_data()
+    print (data)
 
     # Process data
     data_throughput = process_data_throughput(data)
