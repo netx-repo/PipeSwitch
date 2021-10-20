@@ -170,7 +170,6 @@ def main():
     # Collect data with experiments
     data = collect_data()
     print (data)
-    return
 
     # Process data
     data = process_data(data)
