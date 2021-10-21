@@ -33,6 +33,7 @@ def collect_data():
 
             # Get output
             output = result.stdout.decode('utf-8')
+            print (output)
             lines = output.split('\n')
             for line in lines:
                 line = line.strip()
@@ -75,13 +76,13 @@ def plot_figure_throughput(data):
 
     fig, ax = plt.subplots(figsize=(8, 3.69))
 
-    rects2 = ax.bar(x - width/n, kill_restart, width/n, label='Stop-and-start', linewidth=0.5,
+    rects2 = ax.bar(x + width/n, kill_restart, width/n, label='Stop-and-start', linewidth=0.5,
                     edgecolor='black', color='tab:orange')
 
     rects3 = ax.bar(x , mps, width/n, label='MPS', linewidth=0.5,
                     edgecolor='black', color='tab:green')
 
-    rects1 = ax.bar(x + width/n, pipeswitch, width/n, label='PipeSwitch', linewidth=0.5,
+    rects1 = ax.bar(x - width/n, pipeswitch, width/n, label='PipeSwitch', linewidth=0.5,
                     edgecolor='black', color='tab:blue')
 
     ax.set_ylabel('Throughput (batches/sec)')
@@ -94,7 +95,7 @@ def plot_figure_throughput(data):
             bbox_to_anchor=(0.0, 1.05),
             prop={'size': font_size-1})
 
-    # ax.set_ylim(0, 400)
+    ax.set_ylim(0, 40)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.axhline(upper_bound, ls='--', c='k')
@@ -116,7 +117,7 @@ def process_data_latency(data):
         ret.append([])
         for interval in intervals:
             ret[-2].append(data[system][interval][1])
-            ret[-1].append((data[system][interval][2], data[system][interval][3]))
+            ret[-1].append((data[system][interval][1] - data[system][interval][2], data[system][interval][3] - data[system][interval][1]))
     return ret
 
 def plot_figure_latency(data):
@@ -178,8 +179,8 @@ def plot_figure_latency(data):
                     edgecolor='black', linewidth=0.5,color='tab:blue'
                     )
 
-    ax.set_ylim(6000, 10000)
-    ax2.set_ylim(0, 450)
+    ax.set_ylim(4000, 12000)
+    ax2.set_ylim(0, 600)
 
     # hide the spines between ax and ax2
     ax.spines['bottom'].set_visible(False)
@@ -233,6 +234,8 @@ def main():
     # Collect data with experiments
     data = collect_data()
     print (data)
+
+    # data = {'ready_model': {'1s': [28.0, 36.520486218588694, 34.820556640625, 38.29622268676758], '2s': [27.3, 36.72398490346832, 35.45713424682617, 41.06283187866211], '5s': [27.02, 36.915906176224716, 35.16793251037598, 39.56007957458496], '10s': [25.919999999999998, 38.42174454971596, 36.0417366027832, 104.88581657409668], '30s': [26.476666666666667, 37.554381792091775, 34.97123718261719, 40.702104568481445]}, 'pipeswitch': {'1s': [26.0, 38.702260989409226, 35.774946212768555, 49.851417541503906], '2s': [26.25, 38.35288456508091, 36.43155097961426, 48.598289489746094], '5s': [25.9, 38.49421827029077, 36.23771667480469, 52.51026153564453], '10s': [25.675, 38.77168969263004, 36.32378578186035, 74.65052604675293], '30s': [25.4, 39.12875893234894, 36.32473945617676, 131.94942474365234]}, 'mps': {'1s': [5.5, 210.98439259962603, 81.2220573425293, 404.5426845550537], '2s': [4.875, 214.55703026209122, 73.84061813354492, 500.74124336242676], '5s': [6.1, 166.01179076022788, 81.6035270690918, 447.7701187133789], '10s': [6.275, 160.6924030410341, 67.18134880065918, 543.6456203460693], '30s': [6.166666666666667, 162.36772053950543, 69.34070587158203, 521.1207866668701]}, 'kill_restart': {'1s': [0.0, 5620.567560195923, 5509.73916053772, 5837.319135665894], '2s': [0.0, 5755.186319351196, 5549.498081207275, 6256.648302078247], '5s': [0.0, 5636.032581329346, 5615.080118179321, 5674.850702285767], '10s': [10.1, 98.98860678814425, 36.86356544494629, 7102.509260177612], '30s': [20.5, 48.54754238593869, 36.81349754333496, 5715.551137924194]}}
 
     # Process data
     data_throughput = process_data_throughput(data)

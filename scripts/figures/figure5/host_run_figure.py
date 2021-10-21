@@ -28,8 +28,6 @@ def collect_data():
 
             # Run the experiment
             result = subprocess.run(['bash', 'scripts/figures/figure5/%s_%s/host_run_data.sh' % (system, model)], stdout=subprocess.PIPE)
-            # result = subprocess.run(['bash', 'scripts/figures/figure5/%s_%s/host_run_data.sh' % (system, model)])
-            # print (result.stdout.decode('utf-8'))
 
             # Get output
             output = result.stdout.decode('utf-8')
@@ -130,7 +128,7 @@ def plot_figure(data):
     rects2_2 = ax2.bar(x + 2 * width/n, kill_restart, width/n, label='Stop-and-start', 
                     edgecolor='black', linewidth=0.5, color="tab:orange")
 
-    ax.set_ylim(6000, 10000)
+    ax.set_ylim(4000, 12000)
     ax2.set_ylim(0, 400)
 
     # hide the spines between ax and ax2
@@ -168,8 +166,10 @@ def plot_figure(data):
 
 def main():
     # Collect data with experiments
-    data = collect_data()
-    print (data)
+    # data = collect_data()
+    # print (data)
+
+    data = {'ready_model': {'resnet152': 39.54538504282633, 'inception_v3': 40.47923617892795, 'bert_base': 40.5123233795166}, 'pipeswitch': {'resnet152': 43.079328536987305, 'inception_v3': 40.92824459075928, 'bert_base': 54.22322750091553}, 'mps': {'resnet152': 217.59932041168213, 'inception_v3': 177.59661674499512, 'bert_base': 136.00051403045654}, 'kill_restart': {'resnet152': 5752.761936187744, 'inception_v3': 6376.465916633606, 'bert_base': 7442.040467262268}}
 
     # Process data
     data = process_data(data)
