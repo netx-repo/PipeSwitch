@@ -1,5 +1,3 @@
-// c10/cuda/CUDACachingAllocator.h
-
 #ifndef THC_DEVICE_ALLOCATOR_INC
 #define THC_DEVICE_ALLOCATOR_INC
 
@@ -46,11 +44,6 @@ C10_CUDA_API void raw_delete(void* ptr);
 
 C10_CUDA_API Allocator* get();
 C10_CUDA_API void emptyCache();
-C10_CUDA_API void allocateSharedCache(); // PipeSwitch
-C10_CUDA_API void sendSharedCache(); // PipeSwitch
-C10_CUDA_API void recvSharedCache(); // PipeSwitch
-C10_CUDA_API void insertSharedCache(size_t size, size_t offset); // PipeSwitch
-C10_CUDA_API void clearSharedCache(); // PipeSwitch
 C10_CUDA_API void cacheInfo(int dev_id, size_t* cachedAndFree, size_t* largestBlock);
 C10_CUDA_API void* getBaseAllocation(void *ptr, size_t *size);
 C10_CUDA_API void recordStream(void *ptr, CUDAStream stream);
