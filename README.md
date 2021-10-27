@@ -43,6 +43,9 @@ Then you can run the script ```scripts/experiment.sh``` and wait for the result.
 You could modify the script to adapt to your requirement.
 For example, you can compile PyTorch and create the basic docker image directly on the remote server.
 
+We use different branches for different points in the figures.
+These branches are now in Zhihao's repo, and we will move them to this repo in the future.
+
 # 5. Contact
 
 If you have any question, please contact `zbai1 at jhu dot edu`
