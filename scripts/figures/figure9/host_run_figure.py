@@ -149,8 +149,6 @@ def main():
     data = collect_data()
     print (data)
 
-    # data = {'pipeswitch': {'resnet152': 41.38789176940918, 'inception_v3': 44.327425956726074, 'bert_base': 54.315185546875}, 'stop_next': {'resnet152': 221.38731479644775, 'inception_v3': 181.42690658569336, 'bert_base': 229.4083595275879}, 'kill_restart': {'resnet152': 5765.340828895569, 'inception_v3': 6400.432538986206, 'bert_base': 7413.266634941101}}
-
     # Process data
     data = process_data(data)
 

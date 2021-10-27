@@ -7,10 +7,10 @@ import numpy as np
 OUTPUT_FLAG = 'OpenSourceOutputFlag'
 
 systems = [
-    # 'pipeswitch', 
-    # 'no_memory_management', 
-    # 'no_ipc_optimization',
-    # 'no_pin',
+    'pipeswitch', 
+    'no_memory_management', 
+    'no_ipc_optimization',
+    'no_pin',
     'unified_memory'
 ]
 

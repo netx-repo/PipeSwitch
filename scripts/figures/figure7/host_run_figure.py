@@ -122,9 +122,7 @@ def main():
     # Collect data with experiments
     data = collect_data()
     print (data)
-
-    # data = {'pipeswitch': {'resnet152': 41.25771522521973, 'inception_v3': 41.01982116699219, 'bert_base': 53.63037586212158}, 'per_layer': {'resnet152': 76.81310176849365, 'inception_v3': 53.38025093078613, 'bert_base': 69.2216157913208}, 'grouped': {'resnet152': 60.76028347015381, 'inception_v3': 45.93164920806885, 'bert_base': 83.79333019256592}, 'per_layer_no_pipeline': {'resnet152': 85.13836860656738, 'inception_v3': 60.726237297058105, 'bert_base': 93.85206699371338}}
-
+    
     # Process data
     data = process_data(data)
 
