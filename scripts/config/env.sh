@@ -1,0 +1,5 @@
+DOCKER_IMAGE_BASE_TAG='pipeswitch:base'
+DOCKER_IMAGE_BASE_FILENAME='pipeswitch_base.tar'
+DOCKER_IMAGE_PIPESWITCH_TAG='pipeswitch:pipeswitch'
+DOCKER_IMAGE_READY_MODEL_TAG='pipeswitch:ready_model'
+DOCKER_IMAGE_MPS_TAG='pipeswitch:mps'

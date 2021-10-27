@@ -21,6 +21,28 @@ This repository contains the source code for our OSDI'20 paper
 
 More details are included in README under folders for each system.
 
-# 4. Contact
+# 4. Scripts to reproduce figures in our paper.
+
+For the convenience, we implemented some scripts to reproduce our results reported in our paper.
+We assume that you are using a host machine to do experiments in a remote server.
+Thus, before using our scripts, you need to configure passwordless ssh access to the remote server.
+We also expect you install python and docker on both the host and the remote machine.
+By default, we use a server with NVIDIA V100 GPU with 16G GPU memory, such as AWS EC2 p3.2xlarge instances.
+
+After you have configured the remote server, you need to add its IP address and host name in the file ```scripts/config/server.txt```.
+Then you can run the script ```scripts/experiment.sh``` and wait for the result.
+
+```scripts/experiment.sh``` will do the following things:
+- Create a docker image with compiled PyTorch locally.
+- Export the docker image to a file.
+- Load the image file from the host machine to the remote server.
+- Import the image file on the remote server.
+- Create different docker images for different experiments on the remote server based on the basic image.
+- Run experiments for figure 5-9.
+
+You could modify the script to adapt to your requirement.
+For example, you can compile PyTorch and create the basic docker image directly on the remote server.
+
+# 5. Contact
 
 If you have any question, please contact `zbai1 at jhu dot edu`

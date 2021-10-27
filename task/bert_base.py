@@ -2,10 +2,23 @@ import torch
 
 import task.common as util
 
+from util.util import timestamp
+
+
 def import_model():
-    model = torch.hub.load('huggingface/pytorch-transformers', 'model',
+    model = torch.hub.load('huggingface/pytorch-transformers:v2.5.0', 'model',
                            'bert-base-cased')
     util.set_fullname(model, 'bert_base')
+
+    #hook for start up time
+    #need to output the result somewhere else
+    '''for name, layer in model.named_children():
+        layer.__name__ = name
+        layer.register_forward_hook(
+            lambda layer, _, output: timestamp('first_layer', 'forward_computed')
+        )
+        break #only the first layer'''
+
     return model
 
 def import_data(batch_size):
