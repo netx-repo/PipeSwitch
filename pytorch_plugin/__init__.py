@@ -1,3 +1,5 @@
+# torch/cuda/__init__.py
+
 r"""
 This package adds support for CUDA tensor types, that implement the same
 function as CPU tensors, but they utilize GPUs for computation.
@@ -460,6 +462,35 @@ def empty_cache():
     if _initialized:
         torch._C._cuda_emptyCache()
 
+# PipeSwitch
+def allocate_shared_cache():
+    if _initialized:
+        torch._C._cuda_allocateSharedCache()
+
+# PipeSwitch
+def send_shared_cache():
+    if _initialized:
+        torch._C._cuda_sendSharedCache()
+
+# PipeSwitch
+def recv_shared_cache():
+    if _initialized:
+        torch._C._cuda_recvSharedCache()
+
+# PipeSwitch
+def insert_shared_cache_for_parameter():
+    if _initialized:
+        torch._C._cuda_insertSharedCacheForParameter()
+
+# PipeSwitch
+def insert_shared_cache_for_computation():
+    if _initialized:
+        torch._C._cuda_insertSharedCacheForComputation()
+
+# PipeSwitch
+def clear_shared_cache():
+    if _initialized:
+        torch._C._cuda_clearSharedCache()
 
 def memory_allocated(device=None):
     r"""Returns the current GPU memory occupied by tensors in bytes for a given

@@ -1,3 +1,5 @@
+// c10/cuda/CUDACachingAllocator.cpp
+
 #include <c10/cuda/CUDACachingAllocator.h>
 
 #include <c10/cuda/CUDAGuard.h>
@@ -15,6 +17,17 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include <iostream> // PipeSwitch
+#include <unistd.h>  // PipeSwitch
+#include <stdio.h>  // PipeSwitch
+#include <sys/socket.h>  // PipeSwitch
+#include <stdlib.h>  // PipeSwitch
+#include <netinet/in.h>  // PipeSwitch
+#include <string.h> // PipeSwitch
+#include <arpa/inet.h>  // PipeSwitch
+#define PORT 9001 // PipeSwitch
+#define SIZE_SHARED_CACHE (12 * 1024UL * 1024UL * 1024UL) // PipeSwitch
 
 namespace c10 {
 
@@ -57,7 +70,7 @@ namespace {
 using stream_set = std::unordered_set<cuda::CUDAStream>;
 
 constexpr size_t kMinBlockSize = 512;       // all sizes are rounded to at least 512 bytes
-constexpr size_t kSmallSize = 1048576;      // largest "small" allocation is 1 MiB
+constexpr size_t kSmallSize = 1;      // largest "small" allocation is 1 MiB
 constexpr size_t kSmallBuffer = 2097152;    // "small" allocations are packed in 2 MiB blocks
 constexpr size_t kLargeBuffer = 20971520;   // "large" allocations may be packed in 20 MiB blocks
 constexpr size_t kMinLargeAlloc = 10485760; // allocations between 1 and 10 MiB may use kLargeBuffer
@@ -175,6 +188,10 @@ struct THCCachingAllocator
 
   // outstanding cuda events
   std::deque<std::pair<cudaEvent_t, Block*>> cuda_events;
+
+  // PipeSwitch: Pre-allocated shared GPU memory
+  void* PIPESWITCH_shared_ptr = NULL;
+  // size_t allocated_size = 0;
 
   THCCachingAllocator() :
       large_blocks(BlockComparator),
@@ -331,6 +348,149 @@ struct THCCachingAllocator
     synchronize_and_free_events(nullopt);
     free_blocks(large_blocks, large_blocks.begin(), large_blocks.end());
     free_blocks(small_blocks, small_blocks.begin(), small_blocks.end());
+  }
+
+  /* PipeSwitch: allocate shared GPU memory */
+  void allocateSharedCache() {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    cudaError_t err = cudaMalloc(&PIPESWITCH_shared_ptr, SIZE_SHARED_CACHE);
+    if (err != cudaSuccess) {
+      perror("allocate_shared_cache"); 
+      exit(EXIT_FAILURE); 
+    }
+  }
+
+  /* PipeSwitch: send shared GPU memory */
+  void sendSharedCache() {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    cudaIpcMemHandle_t shared_cache_handle;
+
+    // Pack CUDA pointer
+    cudaError_t err = cudaIpcGetMemHandle(&shared_cache_handle, PIPESWITCH_shared_ptr);
+    if (err != cudaSuccess) {
+      perror("pack_shared_cache"); 
+      exit(EXIT_FAILURE); 
+    }
+
+    // Accept connection
+    int server_fd, conn_fd, valread; 
+    int opt = 1;
+    struct sockaddr_in address; 
+    int addrlen = sizeof(address);
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) { 
+        perror("socket failed"); 
+        exit(EXIT_FAILURE); 
+    } 
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) { 
+        perror("setsockopt"); 
+        exit(EXIT_FAILURE); 
+    } 
+    address.sin_family = AF_INET; 
+    address.sin_addr.s_addr = INADDR_ANY; 
+    address.sin_port = htons( PORT ); 
+    if (bind(server_fd, (struct sockaddr *)&address,  sizeof(address)) < 0) { 
+        perror("bind failed"); 
+        exit(EXIT_FAILURE); 
+    } 
+    if (listen(server_fd, 1) < 0) { 
+        perror("listen"); 
+        exit(EXIT_FAILURE); 
+    } 
+    if ((conn_fd = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) { 
+        perror("accept"); 
+        exit(EXIT_FAILURE); 
+    }
+
+    // Send the packed pointer
+    write(conn_fd, (void*)(&shared_cache_handle), sizeof(cudaIpcMemHandle_t));
+
+    close(conn_fd);
+    close(server_fd);
+  }
+
+  /* PipeSwitch: recv shared GPU memory */
+  void recvSharedCache() {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    cudaIpcMemHandle_t shared_cache_handle;
+
+    // Connect
+    int conn_fd = 0; 
+    struct sockaddr_in serv_addr; 
+    if ((conn_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) { 
+        printf("\n Socket creation error \n"); 
+        exit(EXIT_FAILURE); 
+    }
+    serv_addr.sin_family = AF_INET; 
+    serv_addr.sin_port = htons(PORT); 
+    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) { 
+        printf("\nInvalid address/ Address not supported \n"); 
+        exit(EXIT_FAILURE); 
+    }
+    if (connect(conn_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) { 
+        printf("\nConnection Failed \n"); 
+        exit(EXIT_FAILURE); 
+    }
+
+    // Receive packed pointer
+    read(conn_fd, (void*)(&shared_cache_handle), sizeof(cudaIpcMemHandle_t)); 
+    
+    // Extract the pointer
+    cudaError_t err = cudaIpcOpenMemHandle(&PIPESWITCH_shared_ptr, shared_cache_handle, cudaIpcMemLazyEnablePeerAccess);
+    if (err != cudaSuccess) {
+      perror("extract_shared_cache"); 
+      exit(EXIT_FAILURE); 
+    }
+
+    close(conn_fd);
+  }
+
+  /* PipeSwitch: insert shared GPU memory to large block pool */
+  void insertSharedCache(size_t size, size_t offset) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    int device;
+    C10_CUDA_CHECK(cudaGetDevice(&device));
+    Block* block = new Block(
+      device, 
+      cuda::getCurrentCUDAStream(device), 
+      size, 
+      &large_blocks, 
+      static_cast<char*>(PIPESWITCH_shared_ptr) + offset);
+    // allocated_size += size;
+    large_blocks.insert(block);
+
+    get_stats_for_device(device).increaseCached(size);
+    return;
+  }
+
+  /* PipeSwitch: clear shared GPU memory */
+  void clearSharedCache() {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+
+    int device;
+    C10_CUDA_CHECK(cudaGetDevice(&device));
+    cudaStream_t stream = cuda::getCurrentCUDAStream(device);
+
+    std::cout << "Begin Clear" << std::endl;
+    auto it = large_blocks.begin();
+    while (it != large_blocks.end()) {
+      Block* block = *it;
+      if (block->stream == stream && !block->prev && !block->next) {
+        std::cout << "Clear" << ", " << block->ptr << ", "
+                  << block->size << ", " << block->allocated << std::endl;
+        const auto& stats = get_stats_for_device(block->device);
+        get_stats_for_device(block->device).decreaseCached(block->size);
+
+        auto cur = it;
+        ++it;
+        large_blocks.erase(cur);
+        delete block;
+      }
+      else {
+        ++it;
+      }
+    }
+    std::cout << "End Clear" << std::endl;
+    // allocated_size = 0;
   }
 
   void* getBaseAllocation(void* ptr, size_t* outSize)
@@ -641,6 +801,31 @@ Allocator* get(void)
 
 void emptyCache(void) {
   caching_allocator.emptyCache();
+}
+
+// PipeSwitch
+void allocateSharedCache(void) {
+  caching_allocator.allocateSharedCache();
+}
+
+// PipeSwitch
+void sendSharedCache(void) {
+  caching_allocator.sendSharedCache();
+}
+
+// PipeSwitch
+void recvSharedCache(void) {
+  caching_allocator.recvSharedCache();
+}
+
+// PipeSwitch
+void insertSharedCache(size_t size, size_t offset) {
+    caching_allocator.insertSharedCache(size, offset);
+}
+
+// PipeSwitch
+void clearSharedCache(void) {
+  caching_allocator.clearSharedCache();
 }
 
 void cacheInfo(int dev_id, size_t* cachedAndFree, size_t* largestBlock) {
