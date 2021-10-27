@@ -1,5 +1,6 @@
-# Temporary folder
+# Temporary files
 tmp
+output
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

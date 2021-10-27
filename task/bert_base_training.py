@@ -19,7 +19,8 @@ def import_model():
 def import_func():
     def train(model, data_loader):
         # Prepare data
-        batch_size = 32
+        #batch_size = 32
+        batch_size = 1
         data, target = data_loader(batch_size)
 
         # Prepare training

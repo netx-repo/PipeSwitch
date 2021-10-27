@@ -1,0 +1,25 @@
+FROM pipeswitch:base
+
+RUN pip install --upgrade pip
+RUN pip install scipy
+RUN pip install transformers==2.5.0
+
+WORKDIR /workspace
+RUN git clone --branch dev https://github.com/baizh1994/PipeSwitch.git
+
+ENV PYTHONPATH=/workspace/PipeSwitch
+
+WORKDIR /workspace/PipeSwitch
+RUN python scripts/environment/container_download_models.py
+
+WORKDIR /workspace/PipeSwitch/mps
+RUN bash overwrite.sh /workspace/pytorch/
+
+WORKDIR /workspace/pytorch
+ENV CMAKE_PREFIX_PATH=/opt/conda/
+RUN python setup.py install
+
+WORKDIR /workspace
+RUN rm -rf PipeSwitch
+
+WORKDIR /workspace
