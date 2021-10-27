@@ -13,9 +13,9 @@ from util.util import TcpServer, TcpAgent, timestamp
 def func_get_request(active_model_name, qout):
     # Listen connections
     server = TcpServer('localhost', 12345)
-    print("Start listening...")
 
     while True:
+        print("Start listening...")
         # Get connection
         conn, _ = server.accept()
         agent = TcpAgent(conn)
@@ -40,17 +40,11 @@ def func_get_request(active_model_name, qout):
         qout.put((agent, data_b))
 
 def func_schedule(qin, pipe):
-    print("Start scheduling...")
     while True:
         agent, data_b = qin.get()
         pipe.send((agent, data_b))
 
-<<<<<<< HEAD
 def worker_compute(model_name, pipe): 
-=======
-def worker_compute(model_name, pipe):
-    print("Computing...")
->>>>>>> install all packages
     # Load model
     model, func = get_model(model_name)
 

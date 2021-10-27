@@ -18,11 +18,11 @@ def kill_start_server():
     p = subprocess.Popen(['python','../kill_restart/kill_restart.py'])
     return p
 
-def request(model, batch_size=8, scheduling_cycle):
+def request(model, scheduling_cycle, batch_size=8):
     p = subprocess.Popen(['python','throughput.py',model,str(batch_size), scheduling_cycle])
     p.wait()
 
-def request_ready(model, batch_size=8, scheduling_cycle):
+def request_ready(model, scheduling_cycle, batch_size=8):
     p = subprocess.Popen(['python','throughput_ready.py',model,str(batch_size),scheduling_cycle])
     p.wait()
 

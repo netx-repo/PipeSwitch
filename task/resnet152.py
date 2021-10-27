@@ -37,9 +37,9 @@ def import_data(batch_size):
     return images, target
 
 def import_model():
-    model = torchvision.models.resnet152(pretrained=True)
-    # model = torch.hub.load('pytorch/vision', MODEL_NAME, pretrained=True)
-    # util.set_fullname(model, MODEL_NAME)
+    # model = torchvision.models.resnet152(pretrained=True)
+    model = torch.hub.load('pytorch/vision', MODEL_NAME, pretrained=True)
+    util.set_fullname(model, MODEL_NAME)
 
     return model
 
