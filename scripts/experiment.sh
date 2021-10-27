@@ -22,7 +22,7 @@ bash scripts/environment/host_build_docker_image_mps.sh
 # ####################
 # ### Plot figures ###
 
-# mkdir output
+mkdir output
 
 # Warm up servers
 bash scripts/environment/host_run_warmup.sh
