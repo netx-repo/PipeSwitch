@@ -2,26 +2,31 @@
 
 #ifndef THC_DEVICE_ALLOCATOR_INC
 #define THC_DEVICE_ALLOCATOR_INC
-
-#include <c10/cuda/CUDAStream.h>
 #include <c10/core/Allocator.h>
+#include <c10/cuda/CUDAGraphsC10Utils.h>
 #include <c10/cuda/CUDAMacros.h>
+#include <c10/cuda/CUDAStream.h>
 #include <c10/util/Registry.h>
 
+#include <array>
 #include <mutex>
 
 namespace c10 {
 
+class C10_CUDA_API CUDAOutOfMemoryError : public c10::Error {
+  using Error::Error;
+};
+
 // Caching allocator will execute every registered callback if it unable to find
 // block inside of already allocated area.
 class C10_CUDA_API FreeMemoryCallback {
- public:
-  virtual ~FreeMemoryCallback() {};
+public:
+  virtual ~FreeMemoryCallback() = default;
   virtual bool Execute() = 0;
 };
 
 C10_DECLARE_REGISTRY(FreeCudaMemoryCallbacksRegistry, FreeMemoryCallback);
-#define REGISTER_FREE_MEMORY_CALLBACK(name, ...) \
+#define REGISTER_FREE_MEMORY_CALLBACK(name, ...)                               \
   C10_REGISTER_CLASS(FreeCudaMemoryCallbacksRegistry, name, __VA_ARGS__);
 
 namespace cuda {
@@ -41,32 +46,136 @@ namespace cuda {
 
 namespace CUDACachingAllocator {
 
-C10_CUDA_API void* raw_alloc(size_t nbytes);
-C10_CUDA_API void raw_delete(void* ptr);
+struct Stat {
+  int64_t current = 0;
+  int64_t peak = 0;
+  int64_t allocated = 0;
+  int64_t freed = 0;
+};
 
-C10_CUDA_API Allocator* get();
+enum struct StatType : uint64_t {
+  AGGREGATE = 0,
+  SMALL_POOL = 1,
+  LARGE_POOL = 2,
+  NUM_TYPES = 3 // remember to update this whenever a new stat type is added
+};
+
+typedef std::array<Stat, static_cast<size_t>(StatType::NUM_TYPES)> StatArray;
+
+// Struct containing memory allocator summary statistics for a device.
+struct DeviceStats {
+  // COUNT: allocations requested by client code
+  StatArray allocation;
+  // COUNT: number of allocated segments from cudaMalloc().
+  StatArray segment;
+  // COUNT: number of active memory blocks (allocated or used by stream)
+  StatArray active;
+  // COUNT: number of inactive, split memory blocks (unallocated but can't be
+  // released via cudaFree)
+  StatArray inactive_split;
+
+  // SUM: bytes requested by client code
+  StatArray allocated_bytes;
+  // SUM: bytes reserved by this memory allocator (both free and used)
+  StatArray reserved_bytes;
+  // SUM: bytes within active memory blocks
+  StatArray active_bytes;
+  // SUM: bytes within inactive, split memory blocks
+  StatArray inactive_split_bytes;
+
+  // COUNT: total number of failed calls to CUDA malloc necessitating cache
+  // flushes.
+  int64_t num_alloc_retries = 0;
+
+  // COUNT: total number of OOMs (i.e. failed calls to CUDA after cache flush)
+  int64_t num_ooms = 0;
+
+  // COUNT: total number of oversize blocks allocated from pool
+  Stat oversize_allocations;
+
+  // COUNT: total number of oversize blocks requiring malloc
+  Stat oversize_segments;
+
+  // SIZE: maximum block size that is allowed to be split.
+  int64_t max_split_size = 0;
+
+  uint64_t amount_allocated;     // total amount allocated in bytes
+  uint64_t max_amount_allocated; // max total amount allocated in bytes
+  uint64_t amount_cached;        // total amount in cache in bytes
+  uint64_t max_amount_cached;    // max total amount in cache in bytes
+
+  DeviceStats()
+      : amount_allocated(0), max_amount_allocated(0), amount_cached(0),
+        max_amount_cached(0) {}
+
+  void increaseAllocated(size_t delta) {
+    amount_allocated += delta;
+    max_amount_allocated = std::max(max_amount_allocated, amount_allocated);
+  }
+
+  void decreaseAllocated(size_t delta) { amount_allocated -= delta; }
+
+  void increaseCached(size_t delta) {
+    amount_cached += delta;
+    max_amount_cached = std::max(max_amount_cached, amount_cached);
+  }
+
+  void decreaseCached(size_t delta) { amount_cached -= delta; }
+};
+
+// Struct containing info of an allocation block (i.e. a fractional part of a
+// cudaMalloc)..
+struct BlockInfo {
+  int64_t size = 0;
+  bool allocated = false;
+  bool active = false;
+};
+
+// Struct containing info of a memory segment (i.e. one contiguous cudaMalloc).
+struct SegmentInfo {
+  int64_t device = 0;
+  int64_t address = 0;
+  int64_t total_size = 0;
+  int64_t allocated_size = 0;
+  int64_t active_size = 0;
+  bool is_large = false;
+  std::vector<BlockInfo> blocks;
+};
+
+C10_CUDA_API void *raw_alloc(size_t nbytes);
+C10_CUDA_API void *raw_alloc_with_stream(size_t nbytes, cudaStream_t stream);
+C10_CUDA_API void raw_delete(void *ptr);
+
+C10_CUDA_API Allocator *get();
+C10_CUDA_API void init(int device_count);
+C10_CUDA_API void setMemoryFraction(double fraction, int device);
 C10_CUDA_API void emptyCache();
-C10_CUDA_API void allocateSharedCache(); // PipeSwitch
-C10_CUDA_API void sendSharedCache(); // PipeSwitch
-C10_CUDA_API void recvSharedCache(); // PipeSwitch
+C10_CUDA_API void allocateSharedCache();                         // PipeSwitch
+C10_CUDA_API void sendSharedCache();                             // PipeSwitch
+C10_CUDA_API void recvSharedCache();                             // PipeSwitch
 C10_CUDA_API void insertSharedCache(size_t size, size_t offset); // PipeSwitch
-C10_CUDA_API void clearSharedCache(); // PipeSwitch
-C10_CUDA_API void cacheInfo(int dev_id, size_t* cachedAndFree, size_t* largestBlock);
-C10_CUDA_API void* getBaseAllocation(void *ptr, size_t *size);
-C10_CUDA_API void recordStream(void *ptr, CUDAStream stream);
-C10_CUDA_API uint64_t currentMemoryAllocated(int device);
-C10_CUDA_API uint64_t maxMemoryAllocated(int device);
-C10_CUDA_API void     resetMaxMemoryAllocated(int device);
-C10_CUDA_API uint64_t currentMemoryCached(int device);
-C10_CUDA_API uint64_t maxMemoryCached(int device);
-C10_CUDA_API void     resetMaxMemoryCached(int device);
+C10_CUDA_API void clearSharedCache();                            // PipeSwitch
+C10_CUDA_API void cacheInfo(int dev_id, size_t *cachedAndFree,
+                            size_t *largestBlock);
+C10_CUDA_API void *getBaseAllocation(void *ptr, size_t *size);
+C10_CUDA_API void recordStream(const DataPtr &, CUDAStream stream);
+C10_CUDA_API DeviceStats getDeviceStats(int device);
+C10_CUDA_API void resetAccumulatedStats(int device);
+C10_CUDA_API void resetPeakStats(int device);
+C10_CUDA_API std::vector<SegmentInfo> snapshot();
 
-C10_CUDA_API std::mutex* getFreeMutex();
+// CUDAGraph interactions
+C10_CUDA_API void notifyCaptureBegin(int device, CaptureId_t graph_id,
+                                     MempoolId_t mempool_id);
+C10_CUDA_API void notifyCaptureEnd(int device, CaptureId_t graph_id);
+C10_CUDA_API void notifyCaptureDestroy(int device, MempoolId_t mempool_id);
+
+C10_CUDA_API std::mutex *getFreeMutex();
 
 C10_CUDA_API std::shared_ptr<void> getIpcDevPtr(std::string handle);
-
 } // namespace CUDACachingAllocator
 
-}} // namespace c10::cuda
+} // namespace cuda
+} // namespace c10
 
 #endif
