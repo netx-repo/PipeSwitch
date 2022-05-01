@@ -31,7 +31,11 @@
 #include <cstring> // PipeSwitch
 #include <iostream> // PipeSwitch
 #define PORT 9001 // PipeSwitch
-#define SIZE_SHARED_CACHE (12 * 1024UL * 1024UL * 1024UL) // PipeSwitch
+// Change this based on how much memory your GPU has
+#define GPU_MEM_LIMIT_GB 24 // PipeSwitch
+#define SIZE_SHARED_CACHE                                                     \
+  static_cast<size_t>(ceil(2.0 / 3.0 * GPU_MEM_LIMIT_GB)) * 1024UL * 1024UL * \
+      1024UL // PipeSwitch
 
 namespace c10 {
 
@@ -1485,7 +1489,8 @@ class THCCachingAllocator {
   /* PipeSwitch: allocate shared GPU memory */
   void allocateSharedCache() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
-    cudaError_t err = cudaMalloc(&PIPESWITCH_shared_ptr, SIZE_SHARED_CACHE);
+    cudaError_t err = cudaMalloc(
+        &PIPESWITCH_shared_ptr, static_cast<size_t>(SIZE_SHARED_CACHE));
     if (err != cudaSuccess) {
       perror("allocate_shared_cache");
       exit(EXIT_FAILURE);

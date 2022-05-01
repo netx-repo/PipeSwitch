@@ -34,6 +34,9 @@
 #include <pthread.h>
 #endif
 
+// Change this based on how much memory your GPU has
+#define GPU_MEM_LIMIT_GB 24 // PipeSwitch
+
 using namespace torch;
 
 static bool in_bad_fork = false; // True for children forked after cuda init
@@ -371,7 +374,9 @@ PyObject* THCPModule_insertSharedCacheForComputation(
     PyObject* noargs) {
   HANDLE_TH_ERRORS
   c10::cuda::CUDACachingAllocator::insertSharedCache(
-      11UL * 1024UL * 1024UL * 1024UL, 1UL * 1024UL * 1024UL * 1024UL);
+      static_cast<size_t>(ceil(2.0 / 3.0 * GPU_MEM_LIMIT_GB - 1)) * 1024UL *
+          1024UL * 1024UL,
+      1UL * 1024UL * 1024UL * 1024UL);
   END_HANDLE_TH_ERRORS
   Py_RETURN_NONE;
 }
