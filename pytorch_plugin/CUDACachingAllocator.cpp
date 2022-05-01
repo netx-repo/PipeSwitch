@@ -9,10 +9,10 @@
 #include <c10/util/flat_hash_map.h>
 #include <c10/util/irange.h>
 
+#include <cuda_runtime_api.h>
 #include <algorithm>
 #include <bitset>
 #include <cstddef>
-#include <cuda_runtime_api.h>
 #include <deque>
 #include <iterator>
 #include <map>
@@ -22,15 +22,15 @@
 #include <set>
 #include <vector>
 
-#include <arpa/inet.h>                                    // PipeSwitch
-#include <cstdio>                                         // PipeSwitch
-#include <cstdlib>                                        // PipeSwitch
-#include <cstring>                                        // PipeSwitch
-#include <iostream>                                       // PipeSwitch
-#include <netinet/in.h>                                   // PipeSwitch
-#include <sys/socket.h>                                   // PipeSwitch
-#include <unistd.h>                                       // PipeSwitch
-#define PORT 9001                                         // PipeSwitch
+#include <arpa/inet.h> // PipeSwitch
+#include <netinet/in.h> // PipeSwitch
+#include <sys/socket.h> // PipeSwitch
+#include <unistd.h> // PipeSwitch
+#include <cstdio> // PipeSwitch
+#include <cstdlib> // PipeSwitch
+#include <cstring> // PipeSwitch
+#include <iostream> // PipeSwitch
+#define PORT 9001 // PipeSwitch
 #define SIZE_SHARED_CACHE (12 * 1024UL * 1024UL * 1024UL) // PipeSwitch
 
 namespace c10 {
@@ -120,7 +120,7 @@ constexpr size_t kRoundLarge = 2097152; // round up large allocations to 2 MiB
 
 using StatTypes = std::array<bool, static_cast<size_t>(StatType::NUM_TYPES)>;
 
-void update_stat(Stat &stat, int64_t amount) {
+void update_stat(Stat& stat, int64_t amount) {
   stat.current += amount;
 
   TORCH_INTERNAL_ASSERT_DEBUG_ONLY(
@@ -136,15 +136,17 @@ void update_stat(Stat &stat, int64_t amount) {
   }
 }
 
-void reset_accumulated_stat(Stat &stat) {
+void reset_accumulated_stat(Stat& stat) {
   stat.allocated = 0;
   stat.freed = 0;
 }
 
-void reset_peak_stat(Stat &stat) { stat.peak = stat.current; }
+void reset_peak_stat(Stat& stat) {
+  stat.peak = stat.current;
+}
 
 template <typename Func>
-void for_each_selected_stat_type(const StatTypes &stat_types, Func f) {
+void for_each_selected_stat_type(const StatTypes& stat_types, Func f) {
   for (const auto stat_type : c10::irange(stat_types.size())) {
     if (stat_types[stat_type]) {
       f(stat_type);
@@ -152,55 +154,79 @@ void for_each_selected_stat_type(const StatTypes &stat_types, Func f) {
   }
 }
 
-void update_stat_array(StatArray &stat_array, int64_t amount,
-                       const StatTypes &stat_types) {
-  for_each_selected_stat_type(stat_types,
-                              [&stat_array, amount](size_t stat_type) {
-                                update_stat(stat_array[stat_type], amount);
-                              });
+void update_stat_array(
+    StatArray& stat_array,
+    int64_t amount,
+    const StatTypes& stat_types) {
+  for_each_selected_stat_type(
+      stat_types, [&stat_array, amount](size_t stat_type) {
+        update_stat(stat_array[stat_type], amount);
+      });
 }
 
 struct Block;
 struct PrivatePool;
-typedef bool (*Comparison)(const Block *, const Block *);
+typedef bool (*Comparison)(const Block*, const Block*);
 
 struct BlockPool {
-  BlockPool(Comparison comparator, bool small,
-            PrivatePool *private_pool = nullptr)
+  BlockPool(
+      Comparison comparator,
+      bool small,
+      PrivatePool* private_pool = nullptr)
       : blocks(comparator), is_small(small), owner_PrivatePool(private_pool) {}
-  std::set<Block *, Comparison> blocks;
+  std::set<Block*, Comparison> blocks;
   const bool is_small;
-  PrivatePool *owner_PrivatePool;
+  PrivatePool* owner_PrivatePool;
 };
 
 struct Block {
-  int device;             // gpu
-  cudaStream_t stream;    // allocation stream
+  int device; // gpu
+  cudaStream_t stream; // allocation stream
   stream_set stream_uses; // streams on which the block was used
-  size_t size;            // block size in bytes
-  BlockPool *pool;        // owning memory pool
-  void *ptr;              // memory address
-  bool allocated;         // in-use flag
-  Block *prev;            // prev block if split from a larger allocation
-  Block *next;            // next block if split from a larger allocation
-  int event_count;        // number of outstanding CUDA events
+  size_t size; // block size in bytes
+  BlockPool* pool; // owning memory pool
+  void* ptr; // memory address
+  bool allocated; // in-use flag
+  Block* prev; // prev block if split from a larger allocation
+  Block* next; // next block if split from a larger allocation
+  int event_count; // number of outstanding CUDA events
 
-  Block(int device, cudaStream_t stream, size_t size, BlockPool *pool,
-        void *ptr)
-      : device(device), stream(stream), stream_uses(), size(size), pool(pool),
-        ptr(ptr), allocated(false), prev(nullptr), next(nullptr),
+  Block(
+      int device,
+      cudaStream_t stream,
+      size_t size,
+      BlockPool* pool,
+      void* ptr)
+      : device(device),
+        stream(stream),
+        stream_uses(),
+        size(size),
+        pool(pool),
+        ptr(ptr),
+        allocated(false),
+        prev(nullptr),
+        next(nullptr),
         event_count(0) {}
 
   // constructor for search key
   Block(int device, cudaStream_t stream, size_t size)
-      : device(device), stream(stream), stream_uses(), size(size),
-        pool(nullptr), ptr(nullptr), allocated(false), prev(nullptr),
-        next(nullptr), event_count(0) {}
+      : device(device),
+        stream(stream),
+        stream_uses(),
+        size(size),
+        pool(nullptr),
+        ptr(nullptr),
+        allocated(false),
+        prev(nullptr),
+        next(nullptr),
+        event_count(0) {}
 
-  bool is_split() const { return (prev != nullptr) || (next != nullptr); }
+  bool is_split() const {
+    return (prev != nullptr) || (next != nullptr);
+  }
 };
 
-static bool BlockComparator(const Block *a, const Block *b) {
+static bool BlockComparator(const Block* a, const Block* b) {
   if (a->stream != b->stream) {
     return (uintptr_t)a->stream < (uintptr_t)b->stream;
   }
@@ -217,32 +243,46 @@ static std::string format_size(uint64_t size) {
   if (size <= 1024) {
     os << size << " bytes";
   } else if (size <= 1048576) {
-    os << (size / 1024.0);
+    os << (static_cast<double>(size) / 1024.0);
     os << " KiB";
   } else if (size <= 1073741824ULL) {
-    os << size / 1048576.0;
+    os << static_cast<double>(size) / 1048576.0;
     os << " MiB";
   } else {
-    os << size / 1073741824.0;
+    os << static_cast<double>(size) / 1073741824.0;
     os << " GiB";
   }
   return os.str();
 }
 
 struct AllocParams {
-  AllocParams(int device, size_t size, cudaStream_t stream, BlockPool *pool,
-              size_t alloc_size, DeviceStats &stats)
-      : search_key(device, stream, size), pool(pool), alloc_size(alloc_size),
-        block(nullptr), err(cudaSuccess) {}
+  AllocParams(
+      int device,
+      size_t size,
+      cudaStream_t stream,
+      BlockPool* pool,
+      size_t alloc_size,
+      DeviceStats& stats)
+      : search_key(device, stream, size),
+        pool(pool),
+        alloc_size(alloc_size),
+        block(nullptr),
+        err(cudaSuccess) {}
 
-  int device() const { return search_key.device; }
-  cudaStream_t stream() const { return search_key.stream; }
-  size_t size() const { return search_key.size; }
+  int device() const {
+    return search_key.device;
+  }
+  cudaStream_t stream() const {
+    return search_key.stream;
+  }
+  size_t size() const {
+    return search_key.size;
+  }
 
   Block search_key;
-  BlockPool *pool;
+  BlockPool* pool;
   size_t alloc_size;
-  Block *block;
+  Block* block;
   StatTypes stat_types = {false};
   cudaError_t err;
 };
@@ -250,12 +290,13 @@ struct AllocParams {
 // CUDA graphs helper
 struct PrivatePool {
   PrivatePool()
-      : use_count(1), cudaMalloc_count(0),
+      : use_count(1),
+        cudaMalloc_count(0),
         large_blocks(BlockComparator, /*small=*/false, this),
         small_blocks(BlockComparator, /*small=*/true, this) {}
-  PrivatePool(const PrivatePool &) = delete;
-  PrivatePool(PrivatePool &&) = delete;
-  PrivatePool &operator=(const PrivatePool &) = delete;
+  PrivatePool(const PrivatePool&) = delete;
+  PrivatePool(PrivatePool&&) = delete;
+  PrivatePool& operator=(const PrivatePool&) = delete;
   // Number of live graphs using this pool
   int use_count;
   // Number of unfreed cudaMallocs made for this pool. When use_count and
@@ -272,12 +313,12 @@ struct PrivatePool {
 };
 
 struct MempoolIdHash {
-  std::size_t operator()(const MempoolId_t &mempool_id) const noexcept {
+  std::size_t operator()(const MempoolId_t& mempool_id) const noexcept {
     return mempool_id.first != 0 ? mempool_id.first : mempool_id.second;
   }
 };
 
-cudaError_t cudaMallocMaybeCapturing(void **p, size_t size) {
+cudaError_t cudaMallocMaybeCapturing(void** p, size_t size) {
 #if defined(CUDA_VERSION) && CUDA_VERSION >= 11000
   if (at::cuda::currentStreamCaptureStatusMayInitCtx() ==
       at::cuda::CaptureStatus::None) {
@@ -298,12 +339,14 @@ cudaError_t cudaMallocMaybeCapturing(void **p, size_t size) {
 } // namespace
 
 class CachingAllocatorConfig {
-public:
-  static size_t max_split_size() { return instance().m_max_split_size; }
+ public:
+  static size_t max_split_size() {
+    return instance().m_max_split_size;
+  }
 
-private:
-  static CachingAllocatorConfig &instance() {
-    static CachingAllocatorConfig *s_instance = ([]() {
+ private:
+  static CachingAllocatorConfig& instance() {
+    static CachingAllocatorConfig* s_instance = ([]() {
       auto inst = new CachingAllocatorConfig();
       inst->parseArgs();
       return inst;
@@ -316,7 +359,7 @@ private:
   size_t m_max_split_size;
 
   void parseArgs() {
-    const char *val = getenv("PYTORCH_CUDA_ALLOC_CONF");
+    const char* val = getenv("PYTORCH_CUDA_ALLOC_CONF");
     if (val != nullptr) {
       const std::string config(val);
 
@@ -336,13 +379,15 @@ private:
             size_t val2 = stoi(kv[1]);
             TORCH_CHECK(
                 val2 > kLargeBuffer / (static_cast<unsigned long>(1024 * 1024)),
-                "CachingAllocator option max_split_size_mb too small, must be "
-                "> ",
-                kLargeBuffer / (static_cast<unsigned long>(1024 * 1024)), "");
+                "CachingAllocator option max_split_size_mb too small, must be > ",
+                kLargeBuffer / (static_cast<unsigned long>(1024 * 1024)),
+                "");
             val2 = std::max(
                 val2, kLargeBuffer / (static_cast<unsigned long>(1024 * 1024)));
-            val2 = std::min(val2, (std::numeric_limits<size_t>::max() /
-                                   (static_cast<unsigned long>(1024 * 1024))));
+            val2 = std::min(
+                val2,
+                (std::numeric_limits<size_t>::max() /
+                 (static_cast<unsigned long>(1024 * 1024))));
             m_max_split_size = val2 * 1024 * 1024;
           } else {
             TORCH_CHECK(false, "Unrecognized CachingAllocator option: ", kv[0]);
@@ -354,7 +399,7 @@ private:
 };
 
 class DeviceCachingAllocator {
-private:
+ private:
   // lock around all operations
   mutable std::recursive_mutex mutex;
 
@@ -369,17 +414,18 @@ private:
 
   // allocated or in use by a stream. Holds all active allocations,
   // whether they came from graph_pools or one of the BlockPools above.
-  ska::flat_hash_set<Block *> active_blocks;
+  ska::flat_hash_set<Block*> active_blocks;
 
   // captures_underway tracks if a capture might be underway on any stream.
   // Most of the time it's zero, in which case malloc can avoid calling
   // cudaStreamGetCaptureInfo in the hot path.
   int captures_underway = 0;
   // See free() for this thing's purpose
-  std::vector<Block *> needs_events_deferred_until_no_capture;
+  std::vector<Block*> needs_events_deferred_until_no_capture;
   // outstanding cuda events
-  ska::flat_hash_map<cuda::CUDAStream,
-                     std::deque<std::pair<cudaEvent_t, Block *>>>
+  ska::flat_hash_map<
+      cuda::CUDAStream,
+      std::deque<std::pair<cudaEvent_t, Block*>>>
       cuda_events;
 
   // record used memory.
@@ -398,24 +444,25 @@ private:
   // free_blocks. Can't be a vector or deque because we might erase entries in
   // any order. Could be an std::list, but we don't care much, access and
   // insert/erase are rare.
-  ska::flat_hash_map<MempoolId_t, PrivatePool *, MempoolIdHash>
+  ska::flat_hash_map<MempoolId_t, PrivatePool*, MempoolIdHash>
       graph_pools_freeable;
 
   // Maps a capturing stream to its assigned private pool,
   // in case we want multiple captures to share the same pool
   ska::flat_hash_map<CaptureId_t, MempoolId_t> capture_to_pool_map;
 
-public:
+ public:
   DeviceCachingAllocator()
       : large_blocks(BlockComparator, /*small=*/false),
         small_blocks(BlockComparator, /*small=*/true) {
-    stats.max_split_size = CachingAllocatorConfig::max_split_size();
+    stats.max_split_size =
+        static_cast<int64_t>(CachingAllocatorConfig::max_split_size());
   }
 
   // All public methods (except the above) acquire the allocator mutex.
   // Thus, do not call a public method from another public method.
 
-  Block *malloc(int device, size_t size, cudaStream_t stream) {
+  Block* malloc(int device, size_t size, cudaStream_t stream) {
     std::unique_lock<std::recursive_mutex> lock(mutex);
 
     if (C10_LIKELY(captures_underway == 0)) {
@@ -433,7 +480,7 @@ public:
     }
 
     size = round_size(size);
-    auto &pool = get_pool(size, stream);
+    auto& pool = get_pool(size, stream);
     const size_t alloc_size = get_allocation_size(size);
     AllocParams params(device, size, stream, &pool, alloc_size, stats);
     params.stat_types[static_cast<size_t>(StatType::AGGREGATE)] = true;
@@ -487,30 +534,36 @@ public:
       // possible "cached" memory to the driver. The only remaining "cached"
       // memory is split from a larger block that is partially in-use.
       TORCH_CHECK_WITH(
-          CUDAOutOfMemoryError, false, "CUDA out of memory. Tried to allocate ",
-          format_size(alloc_size), " (GPU ", device, "; ",
-          format_size(device_total), " total capacity; ",
+          CUDAOutOfMemoryError,
+          false,
+          "CUDA out of memory. Tried to allocate ",
+          format_size(alloc_size),
+          " (GPU ",
+          device,
+          "; ",
+          format_size(device_total),
+          " total capacity; ",
           format_size(
               stats.allocated_bytes[static_cast<size_t>(StatType::AGGREGATE)]
                   .current),
-          " already allocated; ", format_size(device_free), " free; ",
+          " already allocated; ",
+          format_size(device_free),
+          " free; ",
           allowed_info,
           format_size(
               stats.reserved_bytes[static_cast<size_t>(StatType::AGGREGATE)]
                   .current),
           " reserved in total by PyTorch)",
-          " If reserved memory is >> allocated memory try setting "
-          "max_split_size_mb to avoid"
-          " fragmentation.  See documentation for Memory Management and "
-          "PYTORCH_CUDA_ALLOC_CONF",
+          " If reserved memory is >> allocated memory try setting max_split_size_mb to avoid"
+          " fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF",
           "");
     }
 
-    TORCH_INTERNAL_ASSERT(params.err == cudaSuccess &&
-                          params.block != nullptr &&
-                          params.block->ptr != nullptr);
-    Block *block = params.block;
-    Block *remaining = nullptr;
+    TORCH_INTERNAL_ASSERT(
+        params.err == cudaSuccess && params.block != nullptr &&
+        params.block->ptr != nullptr);
+    Block* block = params.block;
+    Block* remaining = nullptr;
 
     const bool already_split = block->is_split();
     if (should_split(block, size)) {
@@ -524,27 +577,33 @@ public:
       block->next = remaining;
 
       remaining->prev = block;
-      remaining->ptr = static_cast<char *>(remaining->ptr) + size;
+      remaining->ptr = static_cast<char*>(remaining->ptr) + size;
       remaining->size -= size;
       bool inserted = pool.blocks.insert(remaining).second;
       TORCH_INTERNAL_ASSERT_DEBUG_ONLY(inserted);
 
       if (already_split) {
         // An already-split inactive block is being shrunk by size bytes.
-        update_stat_array(stats.inactive_split_bytes, -block->size,
-                          params.stat_types);
+        update_stat_array(
+            stats.inactive_split_bytes,
+            static_cast<int64_t>(-block->size),
+            params.stat_types);
       } else {
         // A new split inactive block is being created from a previously unsplit
         // block, size remaining->size bytes.
         for_each_selected_stat_type(params.stat_types, [&](size_t stat_type) {
-          update_stat(stats.inactive_split_bytes[stat_type], remaining->size);
+          update_stat(
+              stats.inactive_split_bytes[stat_type],
+              static_cast<int64_t>(remaining->size));
           update_stat(stats.inactive_split[stat_type], 1);
         });
       }
     } else if (already_split) {
       // An already-split block is becoming active
       for_each_selected_stat_type(params.stat_types, [&](size_t stat_type) {
-        update_stat(stats.inactive_split_bytes[stat_type], -block->size);
+        update_stat(
+            stats.inactive_split_bytes[stat_type],
+            static_cast<int64_t>(-block->size));
         update_stat(stats.inactive_split[stat_type], -1);
       });
     }
@@ -555,23 +614,27 @@ public:
 
     for_each_selected_stat_type(params.stat_types, [&](size_t stat_type) {
       update_stat(stats.allocation[stat_type], 1);
-      update_stat(stats.allocated_bytes[stat_type], block->size);
+      update_stat(
+          stats.allocated_bytes[stat_type], static_cast<int64_t>(block->size));
       update_stat(stats.active[stat_type], 1);
-      update_stat(stats.active_bytes[stat_type], block->size);
+      update_stat(
+          stats.active_bytes[stat_type], static_cast<int64_t>(block->size));
     });
     if (block->size >= CachingAllocatorConfig::max_split_size())
       update_stat(stats.oversize_allocations, 1);
 
     c10::reportMemoryUsageToProfiler(
-        block->ptr, block->size,
+        block->ptr,
+        static_cast<int64_t>(block->size),
         stats.allocated_bytes[static_cast<size_t>(StatType::AGGREGATE)].current,
         stats.reserved_bytes[static_cast<size_t>(StatType::AGGREGATE)].current,
-        c10::Device(c10::DeviceType::CUDA, device));
+        c10::Device(
+            c10::DeviceType::CUDA, static_cast<c10::DeviceIndex>(device)));
 
     return block;
   }
 
-  void free(Block *block) {
+  void free(Block* block) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
 
     block->allocated = false;
@@ -587,7 +650,8 @@ public:
         true;
     for_each_selected_stat_type(stat_types, [&](size_t stat_type) {
       update_stat(stats.allocation[stat_type], -1);
-      update_stat(stats.allocated_bytes[stat_type], -block->size);
+      update_stat(
+          stats.allocated_bytes[stat_type], static_cast<int64_t>(-block->size));
     });
     if (block->size >= CachingAllocatorConfig::max_split_size())
       update_stat(stats.oversize_allocations, -1);
@@ -607,18 +671,21 @@ public:
     }
 
     c10::reportMemoryUsageToProfiler(
-        orig_block_ptr, -orig_block_size,
+        orig_block_ptr,
+        static_cast<int64_t>(-orig_block_size),
         stats.allocated_bytes[static_cast<size_t>(StatType::AGGREGATE)].current,
         stats.reserved_bytes[static_cast<size_t>(StatType::AGGREGATE)].current,
-        c10::Device(c10::DeviceType::CUDA, block->device));
+        c10::Device(
+            c10::DeviceType::CUDA,
+            static_cast<c10::DeviceIndex>(block->device)));
   }
 
-  void *getBaseAllocation(Block *block, size_t *outSize) {
+  void* getBaseAllocation(Block* block, size_t* outSize) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     while (block->prev) {
       block = block->prev;
     }
-    void *basePtr = block->ptr;
+    void* basePtr = block->ptr;
     if (outSize) {
       size_t size = 0;
       while (block) {
@@ -630,7 +697,7 @@ public:
     return basePtr;
   }
 
-  void recordStream(Block *block, cuda::CUDAStream stream) {
+  void recordStream(Block* block, cuda::CUDAStream stream) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     if (stream.stream() == block->stream) {
       // ignore uses on the allocation stream, since those don't require any
@@ -645,7 +712,8 @@ public:
     size_t device_free = 0;
     size_t device_total = 0;
     C10_CUDA_CHECK(cudaMemGetInfo(&device_free, &device_total));
-    allowed_memory_maximum = static_cast<size_t>(fraction * device_total);
+    allowed_memory_maximum =
+        static_cast<size_t>(fraction * static_cast<double>(device_total));
     set_fraction = true;
   }
 
@@ -656,7 +724,7 @@ public:
   }
 
   /** Retrieves info (total size + largest block) of the memory cache **/
-  void cacheInfo(size_t *total, size_t *largest) {
+  void cacheInfo(size_t* total, size_t* largest) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     if (*largest ==
         0) { // make an initial guess if a zero *largest is passed in
@@ -667,7 +735,7 @@ public:
     }
     cache_info_aux(large_blocks, total, largest);
     cache_info_aux(small_blocks, total, largest);
-    for (const auto &gp : graph_pools) {
+    for (const auto& gp : graph_pools) {
       cache_info_aux(gp.second->large_blocks, total, largest);
       cache_info_aux(gp.second->small_blocks, total, largest);
     }
@@ -728,25 +796,25 @@ public:
     std::vector<SegmentInfo> result;
     const auto all_blocks = get_all_blocks();
 
-    for (const Block *const head_block : all_blocks) {
+    for (const Block* const head_block : all_blocks) {
       if (head_block->prev != nullptr) {
         continue;
       }
       result.emplace_back();
-      SegmentInfo &segment_info = result.back();
+      SegmentInfo& segment_info = result.back();
       segment_info.device = head_block->device;
       segment_info.address = reinterpret_cast<int64_t>(head_block->ptr);
       segment_info.is_large = (!head_block->pool->is_small);
 
-      const Block *block = head_block;
+      const Block* block = head_block;
       while (block != nullptr) {
         segment_info.blocks.emplace_back();
-        BlockInfo &block_info = segment_info.blocks.back();
+        BlockInfo& block_info = segment_info.blocks.back();
 
-        block_info.size = block->size;
+        block_info.size = static_cast<int64_t>(block->size);
         block_info.allocated = block->allocated;
         block_info.active = block->allocated || (block->event_count > 0) ||
-                            !block->stream_uses.empty();
+            !block->stream_uses.empty();
 
         segment_info.total_size += block_info.size;
         if (block_info.allocated) {
@@ -760,10 +828,12 @@ public:
       }
     }
 
-    std::sort(result.begin(), result.end(),
-              [](const SegmentInfo &a, const SegmentInfo &b) {
-                return a.address < b.address;
-              });
+    std::sort(
+        result.begin(),
+        result.end(),
+        [](const SegmentInfo& a, const SegmentInfo& b) {
+          return a.address < b.address;
+        });
 
     return result;
   }
@@ -835,40 +905,45 @@ public:
     }
   }
 
-private:
+ private:
   // All private methods do not acquire the allocator mutex.
 
-  std::vector<const Block *> get_all_blocks() const {
-    std::vector<const Block *> blocks;
-    blocks.insert(blocks.end(), small_blocks.blocks.begin(),
-                  small_blocks.blocks.end());
-    blocks.insert(blocks.end(), large_blocks.blocks.begin(),
-                  large_blocks.blocks.end());
-    for (const auto &gp : graph_pools) {
-      blocks.insert(blocks.end(), gp.second->small_blocks.blocks.begin(),
-                    gp.second->small_blocks.blocks.end());
-      blocks.insert(blocks.end(), gp.second->large_blocks.blocks.begin(),
-                    gp.second->large_blocks.blocks.end());
+  std::vector<const Block*> get_all_blocks() const {
+    std::vector<const Block*> blocks;
+    blocks.insert(
+        blocks.end(), small_blocks.blocks.begin(), small_blocks.blocks.end());
+    blocks.insert(
+        blocks.end(), large_blocks.blocks.begin(), large_blocks.blocks.end());
+    for (const auto& gp : graph_pools) {
+      blocks.insert(
+          blocks.end(),
+          gp.second->small_blocks.blocks.begin(),
+          gp.second->small_blocks.blocks.end());
+      blocks.insert(
+          blocks.end(),
+          gp.second->large_blocks.blocks.begin(),
+          gp.second->large_blocks.blocks.end());
     }
     blocks.insert(blocks.end(), active_blocks.begin(), active_blocks.end());
     return blocks;
   }
 
   /** moves a block into a pool of cached free blocks */
-  void free_block(Block *block) {
-    TORCH_INTERNAL_ASSERT(!block->allocated && block->event_count == 0 &&
-                          block->stream_uses.empty());
+  void free_block(Block* block) {
+    TORCH_INTERNAL_ASSERT(
+        !block->allocated && block->event_count == 0 &&
+        block->stream_uses.empty());
 
     size_t original_block_size = block->size;
 
-    auto &pool = *block->pool;
+    auto& pool = *block->pool;
     int64_t net_change_inactive_split_blocks = 0;
     int64_t net_change_inactive_split_size = 0;
 
-    const std::array<Block *, 2> merge_candidates = {block->prev, block->next};
-    for (Block *merge_candidate : merge_candidates) {
+    const std::array<Block*, 2> merge_candidates = {block->prev, block->next};
+    for (Block* merge_candidate : merge_candidates) {
       const int64_t subsumed_size =
-          try_merge_blocks(block, merge_candidate, pool);
+          static_cast<int64_t>(try_merge_blocks(block, merge_candidate, pool));
       if (subsumed_size > 0) {
         net_change_inactive_split_blocks -= 1;
         net_change_inactive_split_size -= subsumed_size;
@@ -883,25 +958,28 @@ private:
 
     if (block->is_split()) {
       net_change_inactive_split_blocks += 1;
-      net_change_inactive_split_size += block->size;
+      net_change_inactive_split_size += static_cast<int64_t>(block->size);
     }
 
     StatTypes stat_types = {false};
     stat_types[static_cast<size_t>(StatType::AGGREGATE)] = true;
     stat_types[static_cast<size_t>(get_stat_type_for_pool(pool))] = true;
     for_each_selected_stat_type(stat_types, [&](size_t stat_type) {
-      update_stat(stats.inactive_split[stat_type],
-                  net_change_inactive_split_blocks);
-      update_stat(stats.inactive_split_bytes[stat_type],
-                  net_change_inactive_split_size);
+      update_stat(
+          stats.inactive_split[stat_type], net_change_inactive_split_blocks);
+      update_stat(
+          stats.inactive_split_bytes[stat_type],
+          net_change_inactive_split_size);
       update_stat(stats.active[stat_type], -1);
-      update_stat(stats.active_bytes[stat_type], -original_block_size);
+      update_stat(
+          stats.active_bytes[stat_type],
+          static_cast<int64_t>(-original_block_size));
     });
   }
 
   /** combine previously split blocks. returns the size of the subsumed block,
    * or 0 on failure. */
-  size_t try_merge_blocks(Block *dst, Block *src, BlockPool &pool) {
+  size_t try_merge_blocks(Block* dst, Block* src, BlockPool& pool) {
     if (!src || src->allocated || src->event_count > 0 ||
         !src->stream_uses.empty()) {
       return 0;
@@ -931,7 +1009,7 @@ private:
     return subsumed_size;
   }
 
-  BlockPool &get_pool(size_t size, cudaStream_t stream) {
+  BlockPool& get_pool(size_t size, cudaStream_t stream) {
 #if defined(CUDA_VERSION) && CUDA_VERSION >= 11000
     // captures_underway is a conservative guess that the current stream may be
     // capturing. It's only > 0 if some thread has begun and not yet ended a
@@ -939,7 +1017,7 @@ private:
     // cudaStreamCaptureStatus (which does a TLS lookup).
     if (C10_UNLIKELY(captures_underway)) {
       CaptureId_t id = 0;
-      cudaStreamCaptureStatus status;
+      cudaStreamCaptureStatus status = cudaStreamCaptureStatusNone;
       C10_CUDA_CHECK(cudaStreamGetCaptureInfo(stream, &status, &id));
       if (status != cudaStreamCaptureStatus::cudaStreamCaptureStatusNone) {
         TORCH_INTERNAL_ASSERT(
@@ -965,17 +1043,17 @@ private:
     }
   }
 
-  StatType get_stat_type_for_pool(const BlockPool &pool) {
+  StatType get_stat_type_for_pool(const BlockPool& pool) {
     return pool.is_small ? StatType::SMALL_POOL : StatType::LARGE_POOL;
   }
 
-  bool should_split(const Block *block, size_t size) {
+  bool should_split(const Block* block, size_t size) {
     size_t remaining = block->size - size;
     if (block->pool->is_small) {
       return remaining >= kMinBlockSize;
     } else {
       return (size < CachingAllocatorConfig::max_split_size()) &&
-             (remaining > kSmallSize);
+          (remaining > kSmallSize);
     }
   }
 
@@ -989,8 +1067,8 @@ private:
     }
   }
 
-  bool get_free_block(AllocParams &p) {
-    BlockPool &pool = *p.pool;
+  bool get_free_block(AllocParams& p) {
+    BlockPool& pool = *p.pool;
     auto it = pool.blocks.lower_bound(&p.search_key);
     if (it == pool.blocks.end() || (*it)->stream != p.stream())
       return false;
@@ -1007,21 +1085,21 @@ private:
     return true;
   }
 
-  bool trigger_free_memory_callbacks(AllocParams &p) {
+  bool trigger_free_memory_callbacks(AllocParams& p) {
     bool freed_memory = false;
-    for (const auto &name : FreeCudaMemoryCallbacksRegistry()->Keys()) {
+    for (const auto& name : FreeCudaMemoryCallbacksRegistry()->Keys()) {
       freed_memory |=
           FreeCudaMemoryCallbacksRegistry()->Create(name)->Execute();
     }
     return freed_memory;
   }
 
-  bool alloc_block(AllocParams &p, bool isRetry) {
+  bool alloc_block(AllocParams& p, bool isRetry) {
     // Defensively checks for preexisting CUDA error state.
     C10_CUDA_CHECK(cudaGetLastError());
 
     size_t size = p.alloc_size;
-    void *ptr = nullptr;
+    void* ptr = nullptr;
 
     if (isRetry) {
       stats.num_alloc_retries += 1;
@@ -1060,10 +1138,10 @@ private:
     }
 
     total_allocated_memory += size;
-    p.block = new Block(p.device(), p.stream(), size, p.pool, (char *)ptr);
+    p.block = new Block(p.device(), p.stream(), size, p.pool, (char*)ptr);
     for_each_selected_stat_type(p.stat_types, [&](size_t stat_type) {
       update_stat(stats.segment[stat_type], 1);
-      update_stat(stats.reserved_bytes[stat_type], size);
+      update_stat(stats.reserved_bytes[stat_type], static_cast<int64_t>(size));
     });
     if (size >= CachingAllocatorConfig::max_split_size())
       update_stat(stats.oversize_segments, 1);
@@ -1076,15 +1154,15 @@ private:
   /** Free one or more oversize blocks to the system allocator.  But only enough
    * **/
   /** to satisfy the target size **/
-  bool release_available_cached_blocks(const AllocParams &p) {
+  bool release_available_cached_blocks(const AllocParams& p) {
     if (CachingAllocatorConfig::max_split_size() ==
         std::numeric_limits<size_t>::max())
       return false;
-    BlockPool &pool = *p.pool;
+    BlockPool& pool = *p.pool;
     Block key = p.search_key;
     key.size = (key.size < CachingAllocatorConfig::max_split_size())
-                   ? CachingAllocatorConfig::max_split_size()
-                   : key.size;
+        ? CachingAllocatorConfig::max_split_size()
+        : key.size;
     auto it = pool.blocks.lower_bound(&key);
     if (it == pool.blocks.end() || (*it)->stream != p.stream()) {
       // No single block is large enough; free multiple oversize blocks,
@@ -1142,11 +1220,11 @@ private:
     return true;
   }
 
-  void release_block(Block *block) {
-    C10_CUDA_CHECK(cudaFree((void *)block->ptr));
+  void release_block(Block* block) {
+    C10_CUDA_CHECK(cudaFree((void*)block->ptr));
     total_allocated_memory -= block->size;
 
-    auto *pool = block->pool;
+    auto* pool = block->pool;
     if (pool->owner_PrivatePool) {
       // The cudaFreed block belonged to a CUDA graph's PrivatePool.
       TORCH_INTERNAL_ASSERT(pool->owner_PrivatePool->cudaMalloc_count > 0);
@@ -1158,7 +1236,8 @@ private:
     stat_types[static_cast<size_t>(get_stat_type_for_pool(*pool))] = true;
     for_each_selected_stat_type(stat_types, [&](size_t stat_type) {
       update_stat(stats.segment[stat_type], -1);
-      update_stat(stats.reserved_bytes[stat_type], -block->size);
+      update_stat(
+          stats.reserved_bytes[stat_type], static_cast<int64_t>(-block->size));
     });
     if (block->size >= CachingAllocatorConfig::max_split_size())
       update_stat(stats.oversize_segments, -1);
@@ -1167,11 +1246,11 @@ private:
     delete block;
   }
 
-  void release_blocks(BlockPool &pool) {
+  void release_blocks(BlockPool& pool) {
     // Frees all non-split blocks
     auto it = pool.blocks.begin();
     while (it != pool.blocks.end()) {
-      Block *block = *it;
+      Block* block = *it;
       ++it;
       if (!block->prev && !block->next) {
         release_block(block);
@@ -1197,10 +1276,10 @@ private:
     TORCH_INTERNAL_ASSERT(captures_underway == 0);
     insert_events_deferred_until_no_capture();
 
-    for (auto &st : cuda_events) {
-      for (auto &e : st.second) {
+    for (auto& st : cuda_events) {
+      for (auto& e : st.second) {
         cudaEvent_t event = e.first;
-        Block *block = e.second;
+        Block* block = e.second;
 
         C10_CUDA_CHECK(cudaEventSynchronize(event));
         free_event_internal(event);
@@ -1215,13 +1294,13 @@ private:
     cuda_events.clear();
   }
 
-  void insert_events(Block *block) {
+  void insert_events(Block* block) {
     int prev_device = 0;
     C10_CUDA_CHECK(cudaGetDevice(&prev_device));
 
     stream_set streams(std::move(block->stream_uses));
     AT_ASSERT(block->stream_uses.empty());
-    for (auto &stream : streams) {
+    for (auto& stream : streams) {
       C10_CUDA_CHECK(cudaSetDevice(stream.device_index()));
 
       cudaEvent_t event = create_event_internal();
@@ -1236,7 +1315,7 @@ private:
 
   void insert_events_deferred_until_no_capture() {
     if (C10_UNLIKELY(needs_events_deferred_until_no_capture.size() > 0)) {
-      for (auto *block : needs_events_deferred_until_no_capture) {
+      for (auto* block : needs_events_deferred_until_no_capture) {
         TORCH_INTERNAL_ASSERT(!block->stream_uses.empty());
         insert_events(block);
       }
@@ -1254,9 +1333,9 @@ private:
     // or more streams has long-running operations.
     for (auto it = cuda_events.begin(); it != cuda_events.end();) {
       while (!it->second.empty()) {
-        auto &e = it->second.front();
+        auto& e = it->second.front();
         cudaEvent_t event = e.first;
-        Block *block = e.second;
+        Block* block = e.second;
 
         cudaError_t err = cudaEventQuery(event);
         if (err == cudaErrorNotReady) {
@@ -1285,8 +1364,8 @@ private:
   }
 
   // Accumulates sizes of all memory blocks for given device in given pool
-  void cache_info_aux(const BlockPool &pool, size_t *total, size_t *largest) {
-    for (const auto &block : pool.blocks) {
+  void cache_info_aux(const BlockPool& pool, size_t* total, size_t* largest) {
+    for (const auto& block : pool.blocks) {
       const auto blocksize = block->size;
       *total += blocksize;
       if (blocksize > *largest) {
@@ -1297,12 +1376,12 @@ private:
 };
 
 class THCCachingAllocator {
-private:
+ private:
   // lock around all operations
   mutable std::recursive_mutex mutex;
 
   // allocated blocks by device pointer
-  ska::flat_hash_map<void *, Block *> allocated_blocks;
+  ska::flat_hash_map<void*, Block*> allocated_blocks;
 
   // lock around calls to cudaFree (to prevent deadlocks with NCCL)
   mutable std::mutex cuda_free_mutex;
@@ -1313,31 +1392,33 @@ private:
   // cached blocks 1 MB or smaller
   BlockPool small_blocks;
 
-  void add_allocated_block(Block *block) {
+  void add_allocated_block(Block* block) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     allocated_blocks[block->ptr] = block;
   }
 
   // PipeSwitch: Pre-allocated shared GPU memory
-  void *PIPESWITCH_shared_ptr = nullptr;
+  void* PIPESWITCH_shared_ptr = nullptr;
   // size_t allocated_size = 0;
 
-public:
+ public:
   THCCachingAllocator()
       : large_blocks(BlockComparator, false),
         small_blocks(BlockComparator, true) {}
 
   std::vector<std::unique_ptr<DeviceCachingAllocator>> device_allocator;
 
-  std::mutex *getCudaFreeMutex() const { return &cuda_free_mutex; }
+  std::mutex* getCudaFreeMutex() const {
+    return &cuda_free_mutex;
+  }
 
-  Block *get_allocated_block(void *ptr, bool remove = false) {
+  Block* get_allocated_block(void* ptr, bool remove = false) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     auto it = allocated_blocks.find(ptr);
     if (it == allocated_blocks.end()) {
       return nullptr;
     }
-    Block *block = it->second;
+    Block* block = it->second;
     if (remove) {
       allocated_blocks.erase(it);
     }
@@ -1355,21 +1436,22 @@ public:
   }
 
   /** allocates a block which is safe to use from the provided stream */
-  void malloc(void **devPtr, int device, size_t size, cudaStream_t stream) {
-    TORCH_INTERNAL_ASSERT(0 <= device && static_cast<size_t>(device) <
-                                             device_allocator.size(),
-                          "Allocator not initialized for device ", device,
-                          ": did you call init?");
-    Block *block = device_allocator[device]->malloc(device, size, stream);
+  void malloc(void** devPtr, int device, size_t size, cudaStream_t stream) {
+    TORCH_INTERNAL_ASSERT(
+        0 <= device && static_cast<size_t>(device) < device_allocator.size(),
+        "Allocator not initialized for device ",
+        device,
+        ": did you call init?");
+    Block* block = device_allocator[device]->malloc(device, size, stream);
     add_allocated_block(block);
-    *devPtr = (void *)block->ptr;
+    *devPtr = (void*)block->ptr;
   }
 
-  void free(void *ptr) {
+  void free(void* ptr) {
     if (!ptr) {
       return;
     }
-    Block *block = get_allocated_block(ptr, true /* remove */);
+    Block* block = get_allocated_block(ptr, true /* remove */);
     if (!block) {
       TORCH_CHECK(false, "invalid device pointer: ", ptr);
     }
@@ -1377,13 +1459,16 @@ public:
   }
 
   void setMemoryFraction(double fraction, int device) {
-    TORCH_INTERNAL_ASSERT(0 <= device && static_cast<size_t>(device) <
-                                             device_allocator.size(),
-                          "Allocator not initialized for device ", device,
-                          ": did you call init?");
-    TORCH_INTERNAL_ASSERT(0 <= fraction && fraction <= 1,
-                          "invalid fraction:", fraction,
-                          ". Please set within (0, 1).");
+    TORCH_INTERNAL_ASSERT(
+        0 <= device && static_cast<size_t>(device) < device_allocator.size(),
+        "Allocator not initialized for device ",
+        device,
+        ": did you call init?");
+    TORCH_INTERNAL_ASSERT(
+        0 <= fraction && fraction <= 1,
+        "invalid fraction:",
+        fraction,
+        ". Please set within (0, 1).");
     int activated_device = 0;
     cudaGetDevice(&activated_device);
     if (activated_device != device) {
@@ -1393,7 +1478,7 @@ public:
   }
 
   void emptyCache() {
-    for (auto &da : device_allocator)
+    for (auto& da : device_allocator)
       da->emptyCache();
   }
 
@@ -1429,15 +1514,19 @@ public:
       perror("socket failed");
       exit(EXIT_FAILURE);
     }
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt,
-                   sizeof(opt))) {
+    if (setsockopt(
+            server_fd,
+            SOL_SOCKET,
+            SO_REUSEADDR | SO_REUSEPORT,
+            &opt,
+            sizeof(opt))) {
       perror("setsockopt");
       exit(EXIT_FAILURE);
     }
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
       perror("bind failed");
       exit(EXIT_FAILURE);
     }
@@ -1445,14 +1534,15 @@ public:
       perror("listen");
       exit(EXIT_FAILURE);
     }
-    if ((conn_fd = accept(server_fd, (struct sockaddr *)&address,
-                          (socklen_t *)&addrlen)) < 0) {
+    if ((conn_fd = accept(
+             server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) <
+        0) {
       perror("accept");
       exit(EXIT_FAILURE);
     }
 
     // Send the packed pointer
-    write(conn_fd, (void *)(&shared_cache_handle), sizeof(cudaIpcMemHandle_t));
+    write(conn_fd, (void*)(&shared_cache_handle), sizeof(cudaIpcMemHandle_t));
 
     close(conn_fd);
     close(server_fd);
@@ -1476,19 +1566,19 @@ public:
       printf("\nInvalid address/ Address not supported \n");
       exit(EXIT_FAILURE);
     }
-    if (connect(conn_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) <
-        0) {
+    if (connect(conn_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
       printf("\nConnection Failed \n");
       exit(EXIT_FAILURE);
     }
 
     // Receive packed pointer
-    read(conn_fd, (void *)(&shared_cache_handle), sizeof(cudaIpcMemHandle_t));
+    read(conn_fd, (void*)(&shared_cache_handle), sizeof(cudaIpcMemHandle_t));
 
     // Extract the pointer
-    cudaError_t err =
-        cudaIpcOpenMemHandle(&PIPESWITCH_shared_ptr, shared_cache_handle,
-                             cudaIpcMemLazyEnablePeerAccess);
+    cudaError_t err = cudaIpcOpenMemHandle(
+        &PIPESWITCH_shared_ptr,
+        shared_cache_handle,
+        cudaIpcMemLazyEnablePeerAccess);
     if (err != cudaSuccess) {
       perror("extract_shared_cache");
       exit(EXIT_FAILURE);
@@ -1502,9 +1592,12 @@ public:
     std::lock_guard<std::recursive_mutex> lock(mutex);
     int device = 0;
     C10_CUDA_CHECK(cudaGetDevice(&device));
-    Block *block = new Block(
-        device, cuda::getCurrentCUDAStream(device), size, &large_blocks,
-        static_cast<char *>(PIPESWITCH_shared_ptr) + offset);
+    Block* block = new Block(
+        device,
+        cuda::getCurrentCUDAStream(static_cast<c10::DeviceIndex>(device)),
+        size,
+        &large_blocks,
+        static_cast<char*>(PIPESWITCH_shared_ptr) + offset);
     // allocated_size += size;
     large_blocks.blocks.insert(block);
 
@@ -1518,12 +1611,13 @@ public:
 
     int device = 0;
     C10_CUDA_CHECK(cudaGetDevice(&device));
-    cudaStream_t stream = cuda::getCurrentCUDAStream(device);
+    cudaStream_t stream =
+        cuda::getCurrentCUDAStream(static_cast<c10::DeviceIndex>(device));
 
     std::cout << "Begin Clear" << std::endl;
     auto it = large_blocks.blocks.begin();
     while (it != large_blocks.blocks.end()) {
-      Block *block = *it;
+      Block* block = *it;
       if (block->stream == stream && !block->prev && !block->next) {
         std::cout << "Clear"
                   << ", " << block->ptr << ", " << block->size << ", "
@@ -1542,15 +1636,15 @@ public:
     // allocated_size = 0;
   }
 
-  void *getBaseAllocation(void *ptr, size_t *outSize) {
-    Block *block = get_allocated_block(ptr);
+  void* getBaseAllocation(void* ptr, size_t* outSize) {
+    Block* block = get_allocated_block(ptr);
     if (!block) {
       TORCH_CHECK(false, "invalid device pointer: ", ptr);
     }
     return device_allocator[block->device]->getBaseAllocation(block, outSize);
   }
 
-  void recordStream(const DataPtr &ptr, cuda::CUDAStream stream) {
+  void recordStream(const DataPtr& ptr, cuda::CUDAStream stream) {
     // Empty tensor's storage().data() might be a null ptr. As there is no
     // blocks associated with those tensors, it is fine to do nothing here.
     if (!ptr.get()) {
@@ -1565,7 +1659,7 @@ public:
     if (ptr.get_deleter() != &raw_delete)
       return;
 
-    Block *block = get_allocated_block(ptr.get());
+    Block* block = get_allocated_block(ptr.get());
     // block must not be null reaching here
     TORCH_INTERNAL_ASSERT(block != nullptr, "No allocated block can be found");
     device_allocator[block->device]->recordStream(block, stream);
@@ -1573,7 +1667,7 @@ public:
 
   std::vector<SegmentInfo> snapshot() {
     std::vector<SegmentInfo> result;
-    for (auto &da : device_allocator) {
+    for (auto& da : device_allocator) {
       auto snap = da->snapshot();
       result.insert(result.end(), snap.begin(), snap.end());
     }
@@ -1593,7 +1687,9 @@ bool forceUncachedAllocator() {
   return force_uncached;
 }
 
-static void uncached_delete(void *ptr) { C10_CUDA_CHECK(cudaFree(ptr)); }
+static void uncached_delete(void* ptr) {
+  C10_CUDA_CHECK(cudaFree(ptr));
+}
 
 // NB: I decided not to fold this into THCCachingAllocator, because the latter
 // has a lot more methods and it wasn't altogether clear that they should
@@ -1602,22 +1698,34 @@ struct CudaCachingAllocator : public Allocator {
   DataPtr allocate(size_t size) const override {
     constexpr size_t one_exa_bytes = 1152921504606846976ULL;
     TORCH_CHECK_WITH(
-        CUDAOutOfMemoryError, size < one_exa_bytes,
+        CUDAOutOfMemoryError,
+        size < one_exa_bytes,
         "CUDA out of memory. Tried to allocate more than 1EB memory.");
     int device = 0;
     C10_CUDA_CHECK(cudaGetDevice(&device));
-    void *r = nullptr;
+    void* r = nullptr;
     if (forceUncachedAllocator()) {
       // Deliberately don't use cudaMallocMaybeCapturing here, to force an error
       // if someone tries to use forceUncachedAllocator while capturing.
       C10_CUDA_CHECK(cudaMalloc(&r, size));
-      return {r, r, &uncached_delete, Device(DeviceType::CUDA, device)};
+      return {
+          r,
+          r,
+          &uncached_delete,
+          Device(DeviceType::CUDA, static_cast<c10::DeviceIndex>(device))};
     }
     if (size != 0) {
-      caching_allocator.malloc(&r, device, size,
-                               cuda::getCurrentCUDAStream(device));
+      caching_allocator.malloc(
+          &r,
+          device,
+          size,
+          cuda::getCurrentCUDAStream(static_cast<c10::DeviceIndex>(device)));
     }
-    return {r, r, &raw_delete, Device(DeviceType::CUDA, device)};
+    return {
+        r,
+        r,
+        &raw_delete,
+        Device(DeviceType::CUDA, static_cast<c10::DeviceIndex>(device))};
   }
   DeleterFnPtr raw_deleter() const override {
     if (forceUncachedAllocator()) {
@@ -1630,24 +1738,36 @@ struct CudaCachingAllocator : public Allocator {
 
 CudaCachingAllocator device_allocator;
 
-Allocator *get() { return &device_allocator; }
+Allocator* get() {
+  return &device_allocator;
+}
 
-void init(int device_count) { caching_allocator.init(device_count); }
+void init(int device_count) {
+  caching_allocator.init(device_count);
+}
 
 void setMemoryFraction(double fraction, int device) {
   caching_allocator.setMemoryFraction(fraction, device);
 }
 
-void emptyCache() { caching_allocator.emptyCache(); }
+void emptyCache() {
+  caching_allocator.emptyCache();
+}
 
 // PipeSwitch
-void allocateSharedCache() { caching_allocator.allocateSharedCache(); }
+void allocateSharedCache() {
+  caching_allocator.allocateSharedCache();
+}
 
 // PipeSwitch
-void sendSharedCache() { caching_allocator.sendSharedCache(); }
+void sendSharedCache() {
+  caching_allocator.sendSharedCache();
+}
 
 // PipeSwitch
-void recvSharedCache() { caching_allocator.recvSharedCache(); }
+void recvSharedCache() {
+  caching_allocator.recvSharedCache();
+}
 
 // PipeSwitch
 void insertSharedCache(size_t size, size_t offset) {
@@ -1655,27 +1775,32 @@ void insertSharedCache(size_t size, size_t offset) {
 }
 
 // PipeSwitch
-void clearSharedCache() { caching_allocator.clearSharedCache(); }
-
-void cacheInfo(int dev_id, size_t *cachedAndFree, size_t *largestBlock) {
-  caching_allocator.device_allocator[dev_id]->cacheInfo(cachedAndFree,
-                                                        largestBlock);
+void clearSharedCache() {
+  caching_allocator.clearSharedCache();
 }
 
-void *getBaseAllocation(void *ptr, size_t *size) {
+void cacheInfo(int dev_id, size_t* cachedAndFree, size_t* largestBlock) {
+  caching_allocator.device_allocator[dev_id]->cacheInfo(
+      cachedAndFree, largestBlock);
+}
+
+void* getBaseAllocation(void* ptr, size_t* size) {
   return caching_allocator.getBaseAllocation(ptr, size);
 }
 
-void recordStream(const DataPtr &ptr, cuda::CUDAStream stream) {
+void recordStream(const DataPtr& ptr, cuda::CUDAStream stream) {
   caching_allocator.recordStream(ptr, stream);
 }
 
-std::mutex *getFreeMutex() { return caching_allocator.getCudaFreeMutex(); }
+std::mutex* getFreeMutex() {
+  return caching_allocator.getCudaFreeMutex();
+}
 
 static inline void assertValidDevice(int device) {
   const auto device_num = caching_allocator.device_allocator.size();
-  TORCH_CHECK(0 <= device && device < static_cast<int64_t>(device_num),
-              "Invalid device argument.");
+  TORCH_CHECK(
+      0 <= device && device < static_cast<int64_t>(device_num),
+      "Invalid device argument.");
 }
 
 DeviceStats getDeviceStats(int device) {
@@ -1693,14 +1818,18 @@ void resetPeakStats(int device) {
   caching_allocator.device_allocator[device]->resetPeakStats();
 }
 
-std::vector<SegmentInfo> snapshot() { return caching_allocator.snapshot(); }
+std::vector<SegmentInfo> snapshot() {
+  return caching_allocator.snapshot();
+}
 
 // CUDAGraph interactions
-void notifyCaptureBegin(int device, CaptureId_t graph_id,
-                        MempoolId_t mempool_id) {
+void notifyCaptureBegin(
+    int device,
+    CaptureId_t graph_id,
+    MempoolId_t mempool_id) {
   assertValidDevice(device);
-  caching_allocator.device_allocator[device]->notifyCaptureBegin(graph_id,
-                                                                 mempool_id);
+  caching_allocator.device_allocator[device]->notifyCaptureBegin(
+      graph_id, mempool_id);
 }
 
 void notifyCaptureEnd(int device, CaptureId_t graph_id) {
@@ -1745,16 +1874,15 @@ std::shared_ptr<void> getIpcDevPtr(std::string handle) {
   }
   // This ipcMemHandle hasn't been opened, or already expired, open it to
   // enable IPC access to that mem block.
-  void *dev = nullptr;
-  auto ipc_handle =
-      reinterpret_cast<const cudaIpcMemHandle_t *>(handle.c_str());
+  void* dev = nullptr;
+  auto ipc_handle = reinterpret_cast<const cudaIpcMemHandle_t*>(handle.c_str());
   C10_CUDA_CHECK(
       cudaIpcOpenMemHandle(&dev, *ipc_handle, cudaIpcMemLazyEnablePeerAccess));
   // devPtr has to be deleted in same device when created.
   int curr_device = 0;
   C10_CUDA_CHECK(cudaGetDevice(&curr_device));
-  auto sp = std::shared_ptr<void>(dev, [handle, curr_device](void *ptr) {
-    cuda::CUDAGuard device_guard(curr_device);
+  auto sp = std::shared_ptr<void>(dev, [handle, curr_device](void* ptr) {
+    cuda::CUDAGuard device_guard(static_cast<c10::DeviceIndex>(curr_device));
     std::lock_guard<std::mutex> deleter_lock(IpcMutex);
     C10_CUDA_CHECK(cudaIpcCloseMemHandle(ptr));
     ipcMemHandle_to_devptr.erase(handle);
@@ -1769,30 +1897,35 @@ std::shared_ptr<void> getIpcDevPtr(std::string handle) {
   return sp;
 }
 
-void *raw_alloc(size_t nbytes) {
+void* raw_alloc(size_t nbytes) {
   if (nbytes == 0) {
     return nullptr;
   }
   int device = 0;
   C10_CUDA_CHECK(cudaGetDevice(&device));
-  void *r = nullptr;
-  caching_allocator.malloc(&r, device, nbytes,
-                           cuda::getCurrentCUDAStream(device));
+  void* r = nullptr;
+  caching_allocator.malloc(
+      &r,
+      device,
+      nbytes,
+      cuda::getCurrentCUDAStream(static_cast<c10::DeviceIndex>(device)));
   return r;
 }
 
-void *raw_alloc_with_stream(size_t nbytes, cudaStream_t stream) {
+void* raw_alloc_with_stream(size_t nbytes, cudaStream_t stream) {
   if (nbytes == 0) {
     return nullptr;
   }
   int device = 0;
   C10_CUDA_CHECK(cudaGetDevice(&device));
-  void *r = nullptr;
+  void* r = nullptr;
   caching_allocator.malloc(&r, device, nbytes, stream);
   return r;
 }
 
-void raw_delete(void *ptr) { caching_allocator.free(ptr); }
+void raw_delete(void* ptr) {
+  caching_allocator.free(ptr);
+}
 
 } // namespace CUDACachingAllocator
 

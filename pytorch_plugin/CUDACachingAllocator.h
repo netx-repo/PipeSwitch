@@ -20,13 +20,13 @@ class C10_CUDA_API CUDAOutOfMemoryError : public c10::Error {
 // Caching allocator will execute every registered callback if it unable to find
 // block inside of already allocated area.
 class C10_CUDA_API FreeMemoryCallback {
-public:
+ public:
   virtual ~FreeMemoryCallback() = default;
   virtual bool Execute() = 0;
 };
 
 C10_DECLARE_REGISTRY(FreeCudaMemoryCallbacksRegistry, FreeMemoryCallback);
-#define REGISTER_FREE_MEMORY_CALLBACK(name, ...)                               \
+#define REGISTER_FREE_MEMORY_CALLBACK(name, ...) \
   C10_REGISTER_CLASS(FreeCudaMemoryCallbacksRegistry, name, __VA_ARGS__);
 
 namespace cuda {
@@ -99,28 +99,39 @@ struct DeviceStats {
   // SIZE: maximum block size that is allowed to be split.
   int64_t max_split_size = 0;
 
-  uint64_t amount_allocated;     // total amount allocated in bytes
+  uint64_t amount_allocated; // total amount allocated in bytes
   uint64_t max_amount_allocated; // max total amount allocated in bytes
-  uint64_t amount_cached;        // total amount in cache in bytes
-  uint64_t max_amount_cached;    // max total amount in cache in bytes
+  uint64_t amount_cached; // total amount in cache in bytes
+  uint64_t max_amount_cached; // max total amount in cache in bytes
 
+  // PipeSwitch
   DeviceStats()
-      : amount_allocated(0), max_amount_allocated(0), amount_cached(0),
+      : amount_allocated(0),
+        max_amount_allocated(0),
+        amount_cached(0),
         max_amount_cached(0) {}
 
+  // PipeSwitch
   void increaseAllocated(size_t delta) {
     amount_allocated += delta;
     max_amount_allocated = std::max(max_amount_allocated, amount_allocated);
   }
 
-  void decreaseAllocated(size_t delta) { amount_allocated -= delta; }
+  // PipeSwitch
+  void decreaseAllocated(size_t delta) {
+    amount_allocated -= delta;
+  }
 
+  // PipeSwitch
   void increaseCached(size_t delta) {
     amount_cached += delta;
     max_amount_cached = std::max(max_amount_cached, amount_cached);
   }
 
-  void decreaseCached(size_t delta) { amount_cached -= delta; }
+  // PipeSwitch
+  void decreaseCached(size_t delta) {
+    amount_cached -= delta;
+  }
 };
 
 // Struct containing info of an allocation block (i.e. a fractional part of a
@@ -142,35 +153,39 @@ struct SegmentInfo {
   std::vector<BlockInfo> blocks;
 };
 
-C10_CUDA_API void *raw_alloc(size_t nbytes);
-C10_CUDA_API void *raw_alloc_with_stream(size_t nbytes, cudaStream_t stream);
-C10_CUDA_API void raw_delete(void *ptr);
+C10_CUDA_API void* raw_alloc(size_t nbytes);
+C10_CUDA_API void* raw_alloc_with_stream(size_t nbytes, cudaStream_t stream);
+C10_CUDA_API void raw_delete(void* ptr);
 
-C10_CUDA_API Allocator *get();
+C10_CUDA_API Allocator* get();
 C10_CUDA_API void init(int device_count);
 C10_CUDA_API void setMemoryFraction(double fraction, int device);
 C10_CUDA_API void emptyCache();
-C10_CUDA_API void allocateSharedCache();                         // PipeSwitch
-C10_CUDA_API void sendSharedCache();                             // PipeSwitch
-C10_CUDA_API void recvSharedCache();                             // PipeSwitch
+C10_CUDA_API void allocateSharedCache(); // PipeSwitch
+C10_CUDA_API void sendSharedCache(); // PipeSwitch
+C10_CUDA_API void recvSharedCache(); // PipeSwitch
 C10_CUDA_API void insertSharedCache(size_t size, size_t offset); // PipeSwitch
-C10_CUDA_API void clearSharedCache();                            // PipeSwitch
-C10_CUDA_API void cacheInfo(int dev_id, size_t *cachedAndFree,
-                            size_t *largestBlock);
-C10_CUDA_API void *getBaseAllocation(void *ptr, size_t *size);
-C10_CUDA_API void recordStream(const DataPtr &, CUDAStream stream);
+C10_CUDA_API void clearSharedCache(); // PipeSwitch
+C10_CUDA_API void cacheInfo(
+    int dev_id,
+    size_t* cachedAndFree,
+    size_t* largestBlock);
+C10_CUDA_API void* getBaseAllocation(void* ptr, size_t* size);
+C10_CUDA_API void recordStream(const DataPtr&, CUDAStream stream);
 C10_CUDA_API DeviceStats getDeviceStats(int device);
 C10_CUDA_API void resetAccumulatedStats(int device);
 C10_CUDA_API void resetPeakStats(int device);
 C10_CUDA_API std::vector<SegmentInfo> snapshot();
 
 // CUDAGraph interactions
-C10_CUDA_API void notifyCaptureBegin(int device, CaptureId_t graph_id,
-                                     MempoolId_t mempool_id);
+C10_CUDA_API void notifyCaptureBegin(
+    int device,
+    CaptureId_t graph_id,
+    MempoolId_t mempool_id);
 C10_CUDA_API void notifyCaptureEnd(int device, CaptureId_t graph_id);
 C10_CUDA_API void notifyCaptureDestroy(int device, MempoolId_t mempool_id);
 
-C10_CUDA_API std::mutex *getFreeMutex();
+C10_CUDA_API std::mutex* getFreeMutex();
 
 C10_CUDA_API std::shared_ptr<void> getIpcDevPtr(std::string handle);
 } // namespace CUDACachingAllocator
